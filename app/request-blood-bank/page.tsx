@@ -1,6 +1,44 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 
 const RequestForm = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [bname, setBName] = useState("");
+  const [location, setLocation] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Reset messages
+    setError("");
+    setSuccess("");
+
+    // ✅ Validation
+    if (!name || !email || !bname || !location || !phone || !password) {
+      setError("❌ All fields are required.");
+      return;
+    }
+
+    // Here you can send this data to API
+    // await api.post("/api/admin-request", { name, email, bname, location, phone, password });
+
+    setSuccess("✅ Request submitted successfully!");
+    // Optionally, reset fields
+    setName("");
+    setEmail("");
+    setBName("");
+    setLocation("");
+    setPhone("");
+    setPassword("");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-red-100 px-4 py-8">
       <div className="w-full max-w-2xl bg-white p-10 rounded-2xl shadow-lg border border-red-100">
@@ -29,7 +67,13 @@ const RequestForm = () => {
           </p>
         </div>
 
-        <form className="space-y-6">
+        {/* ✅ Show messages */}
+        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+        {success && (
+          <p className="text-green-600 text-center mb-4">{success}</p>
+        )}
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
@@ -41,8 +85,10 @@ const RequestForm = () => {
               <input
                 type="text"
                 id="name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
-                placeholder="John Doe"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                placeholder="Tejas Jagdale"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
 
@@ -56,8 +102,10 @@ const RequestForm = () => {
               <input
                 type="email"
                 id="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
-                placeholder="john@example.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                placeholder="tejasjagdale@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -72,8 +120,10 @@ const RequestForm = () => {
             <input
               type="text"
               id="bname"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
               placeholder="City Blood Center"
+              value={bname}
+              onChange={(e) => setBName(e.target.value)}
             />
           </div>
 
@@ -87,46 +137,53 @@ const RequestForm = () => {
             <input
               type="text"
               id="location"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
-              placeholder="123 Main Street, City"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+              placeholder="123 Main Street"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
             />
           </div>
 
           <div>
             <label
-              htmlFor="Phone"
+              htmlFor="phone"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Contact Number
             </label>
             <input
               type="text"
-              id="Phone"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
-              placeholder="+1 (555) 123-4567"
+              id="phone"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+              placeholder="+91 9876543210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
 
-          <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5"
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Request Admin
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 inline-block ml-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+              Set Admin Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
+
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5"
+          >
+            Request Admin Access
+          </button>
         </form>
       </div>
     </div>
