@@ -13,7 +13,7 @@ const RequestForm = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Reset messages
@@ -25,18 +25,38 @@ const RequestForm = () => {
       setError("❌ All fields are required.");
       return;
     }
+    try {
+      const res = await fetch("/api/request-access", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: name,
+          email,
+          password,
+          blood_bank_name: bname,
+          address: location,
+          phone,
+        }),
+      });
 
-    // Here you can send this data to API
-    // await api.post("/api/admin-request", { name, email, bname, location, phone, password });
+      const result = await res.json();
 
-    setSuccess("✅ Request submitted successfully!");
-    // Optionally, reset fields
-    setName("");
-    setEmail("");
-    setBName("");
-    setLocation("");
-    setPhone("");
-    setPassword("");
+      if (!res.ok) {
+        throw new Error(result.error || "Something went wrong!");
+      }
+
+      setSuccess("✅ Request submitted successfully!");
+      setName("");
+      setEmail("");
+      setBName("");
+      setLocation("");
+      setPhone("");
+      setPassword("");
+    } catch (err: any) {
+      setError(`❌ ${err.message}`);
+    }
   };
 
   return (
