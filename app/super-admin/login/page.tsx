@@ -37,9 +37,15 @@ const SuperLogin = () => {
       headers: { "Content-Type": "application/json" },
     });
 
-    // Then redirect
-    window.location.href = "/super-admin/dashboard";
+    // Redirect to dashboard
+    router.push("/super-admin/dashboard");
   };
+
+  // Handle Forgot Password redirect
+  const handleForgotPassword = () => {
+    router.push("/super-admin/forgot-password");
+  };
+
   return (
     <div className="flex h-screen justify-center items-center bg-gradient-to-br from-orange-300 via-white to-green-400 px-4">
       <div className="space-y-6 text-center w-full max-w-md bg-white shadow-2xl rounded-2xl px-6 py-8 border border-gray-200">
@@ -90,7 +96,13 @@ const SuperLogin = () => {
             Login
           </button>
         </form>
-        <p className="underline">Forgot Password</p>
+
+        <p
+          className="underline text-blue-600 hover:text-blue-800 cursor-pointer mt-4"
+          onClick={handleForgotPassword}
+        >
+          Forgot Password?
+        </p>
       </div>
     </div>
   );
