@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { SignJWT } from "jose";
+
+// Helper function to get JWT secret
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET is not defined in .env");
+  return new TextEncoder().encode(secret);
+}
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
@@ -14,6 +21,7 @@ export async function POST(req: Request) {
     );
   }
 
+  // Supabase instance to query admin table
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +39,7 @@ export async function POST(req: Request) {
     }
   );
 
+  // Get admin from DB
   const { data: admin, error } = await supabase
     .from("admins")
     .select("id, email, password, full_name, blood_bank_id")
@@ -44,6 +53,7 @@ export async function POST(req: Request) {
     );
   }
 
+  // Check password
   const isMatch = await bcrypt.compare(password, admin.password);
   if (!isMatch) {
     return NextResponse.json(
@@ -52,15 +62,19 @@ export async function POST(req: Request) {
     );
   }
 
-  // Create JWT
-  const token = jwt.sign(
-    { id: admin.id, email: admin.email, role: "blood-bank-admin" },
-    process.env.JWT_SECRET!,
-    {
-      expiresIn: "6h",
-    }
-  );
+  // ✅ Create JWT using `jose`
+  const jwt = await new SignJWT({
+    id: admin.id,
+    email: admin.email,
+    role: "blood-bank-admin",
+    blood_bank_id: admin.blood_bank_id,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("6h")
+    .sign(getJwtSecret());
 
+  // ✅ Set JWT cookie
   const response = NextResponse.json({
     success: true,
     admin: {
@@ -73,11 +87,11 @@ export async function POST(req: Request) {
 
   response.cookies.set({
     name: "bb_admin_token",
-    value: token,
+    value: jwt,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 6,
+    maxAge: 60 * 60 * 6, // 6 hours
   });
 
   return response;
