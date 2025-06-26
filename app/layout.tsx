@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+// app/layout.tsx or app/page.tsx if you're using app router
+import "leaflet/dist/leaflet.css";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
