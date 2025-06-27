@@ -1,13 +1,12 @@
 import { createClient } from "@/utils/supabase";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { getCoordinatesFromAddress } from "@/utils/geocode";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { id, action } = await req.json();
 
-  // Fetch the request details
+  // Fetch the request details including coordinates
   const { data: requestData, error: fetchError } = await supabase
     .from("requests")
     .select("*")
@@ -19,18 +18,7 @@ export async function POST(req: Request) {
   }
 
   if (action === "approve") {
-    // ✅ Step 1: Get coordinates using address
-    let coordinates = { latitude: null, longitude: null };
-    try {
-      coordinates = await getCoordinatesFromAddress(requestData.address);
-    } catch (error) {
-      console.warn(
-        "Geocoding failed or invalid address. Proceeding with null coordinates."
-      );
-      // We continue even if coords are not found
-    }
-
-    // ✅ Step 2: Insert Blood Bank (with coordinates)
+    // ✅ Step 1: Insert Blood Bank with coordinates from request
     const { data: bankData, error: bankError } = await supabase
       .from("blood_banks")
       .insert({
@@ -38,8 +26,8 @@ export async function POST(req: Request) {
         address: requestData.address,
         phone: requestData.phone,
         slug: requestData.blood_bank_name.toLowerCase().replace(/\s+/g, "-"),
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
+        latitude: requestData.latitude, // Use stored latitude
+        longitude: requestData.longitude, // Use stored longitude
       })
       .select()
       .single();
@@ -53,7 +41,7 @@ export async function POST(req: Request) {
 
     const blood_bank_id = bankData.id;
 
-    // ✅ Step 3: Create Admin with Hashed Password
+    // ✅ Step 2: Create Admin with Hashed Password
     const hashedPassword = await bcrypt.hash(requestData.password, 10);
     const { error: adminError } = await supabase.from("admins").insert({
       full_name: requestData.full_name,
@@ -70,7 +58,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ Step 4: Create 8 blood groups
+    // ✅ Step 3: Create 8 blood groups
     const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
     await supabase.from("blood_groups").insert(
       bloodTypes.map((type) => ({
@@ -80,7 +68,7 @@ export async function POST(req: Request) {
       }))
     );
 
-    // ✅ Step 5: Update request status
+    // ✅ Step 4: Update request status
     await supabase.from("requests").update({ status: "approved" }).eq("id", id);
   } else if (action === "reject") {
     await supabase.from("requests").update({ status: "rejected" }).eq("id", id);

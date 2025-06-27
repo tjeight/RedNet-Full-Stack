@@ -1,25 +1,39 @@
-// /app/api/request-bloodbank/route.ts
-import { createClient } from "@/utils/supabase/index";
+import { createClient } from "@/utils/supabase";
 import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
   const body = await req.json();
 
-  const { full_name, email, password, blood_bank_name, address, phone } = body;
+  const {
+    full_name,
+    email,
+    password,
+    blood_bank_name,
+    address,
+    phone,
+    location, // This contains the coordinates from the form
+  } = body;
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const { error } = await supabase.from("requests").insert({
     full_name,
     email,
-    password, // Hash if needed
+    password: hashedPassword,
     blood_bank_name,
     address,
     phone,
+    latitude: location.coordinates[1], // Store latitude
+    longitude: location.coordinates[0], // Store longitude
     status: "pending",
   });
 
-  if (error)
+  if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
 
   return NextResponse.json({ success: true });
 }

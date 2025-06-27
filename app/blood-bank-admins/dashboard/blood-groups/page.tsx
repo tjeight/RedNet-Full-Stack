@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation"; // Added import
 
 type BloodGroup = {
   id: string;
@@ -10,6 +11,7 @@ type BloodGroup = {
 };
 
 export default function BloodGroupsPage() {
+  const router = useRouter(); // Added router
   const [bloodGroups, setBloodGroups] = useState<BloodGroup[]>([]);
   const [error, setError] = useState("");
   const [editingGroup, setEditingGroup] = useState<{
@@ -72,6 +74,26 @@ export default function BloodGroupsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-6">
       <div className="max-w-6xl mx-auto">
+        {/* Added Back Button */}
+        <button
+          onClick={() => router.push("/blood-bank-admins/dashboard")}
+          className="mb-4 flex items-center text-gray-400 hover:text-white transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Back to Dashboard
+        </button>
+
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
