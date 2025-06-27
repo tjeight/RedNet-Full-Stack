@@ -44,7 +44,7 @@ const AddBillingPage = () => {
         throw new Error(data.error || "Failed to create billing");
       }
 
-      router.push("/blood-bank-admins/dashboard/billing");
+      router.push("/blood-bank-admins/dashboard/billing/add");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -54,6 +54,25 @@ const AddBillingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+      {/* Added Back Button */}
+      <button
+        onClick={() => router.push("/blood-bank-admins/dashboard")}
+        className="mb-6 ml-4 flex items-center text-gray-400 hover:text-white transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 mr-2"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Back to Dashboard
+      </button>
       <div className="max-w-md mx-auto bg-gray-800/50 backdrop-blur-lg rounded-xl shadow-2xl overflow-hidden border border-gray-700/30">
         <div className="p-8">
           <div className="text-center mb-8">
@@ -143,7 +162,7 @@ const AddBillingPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Price (INR) <span className="text-red-500">*</span>
+                  Price (USD) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-gray-400">₹</span>

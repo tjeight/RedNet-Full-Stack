@@ -82,8 +82,8 @@ const navItems = [
     icon: "❤️",
   },
   {
-    name: "Donations",
-    href: "/blood-bank-admins/dashboard/donations",
+    name: "Add Donor",
+    href: "/blood-bank-admins/dashboard/donors/add",
     icon: "🩹",
   },
   {
@@ -91,11 +91,11 @@ const navItems = [
     href: "/blood-bank-admins/dashboard/billing/add",
     icon: "💰",
   },
-  {
-    name: "Reports",
-    href: "/blood-bank-admins/dashboard/reports",
-    icon: "📈",
-  },
+  // {
+  //   name: "Reports",
+  //   href: "/blood-bank-admins/dashboard/reports",
+  //   icon: "📈",
+  // },
 ];
 
 const classNames = (...classes: (string | boolean | undefined)[]) => {

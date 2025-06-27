@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const AdminLogin = () => {
   const router = useRouter();
@@ -29,6 +30,26 @@ const AdminLogin = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
+      {/* Back Button */}
+      <Link
+        href="/"
+        className="absolute top-6 left-6 z-50 inline-flex items-center text-gray-400 hover:text-white transition-colors group"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Back to Home
+      </Link>
+
       {/* Premium Dark Texture Background */}
       <div className="absolute inset-0 bg-gray-950">
         <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_center,#4a4a4a_1px,transparent_1px)] bg-[size:20px_20px]"></div>

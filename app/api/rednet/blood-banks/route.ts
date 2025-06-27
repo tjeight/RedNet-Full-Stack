@@ -1,5 +1,3 @@
-// app/api/rednet/blood-banks/route.ts
-
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -21,7 +19,18 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("blood_banks")
-    .select("id, name, address, phone, slug");
+    .select(
+      `
+      id, 
+      name, 
+      address, 
+      phone, 
+      slug,
+      blood_groups:blood_groups(type, quantity)
+    `
+    )
+    .not("blood_groups.quantity", "is", null)
+    .gt("blood_groups.quantity", 0);
 
   if (error) {
     return NextResponse.json(
@@ -30,5 +39,11 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ bloodBanks: data });
+  return NextResponse.json({
+    bloodBanks: data.map((bank) => ({
+      ...bank,
+      blood_groups:
+        bank.blood_groups?.filter((group) => group.quantity > 0) || [],
+    })),
+  });
 }
