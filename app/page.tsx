@@ -25,7 +25,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds default
+  const [refreshInterval, setRefreshInterval] = useState(3600000); // 30 seconds default
 
   const fetchBloodBanks = async () => {
     try {
@@ -388,6 +388,40 @@ export default function HomePage() {
             )}
           </motion.div>
         )}
+        {/* After About Section */}
+        {/* After About Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-center mb-12 mt-2"
+        >
+          <Link href="/about" passHref>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-6 py-3 bg-transparent border border-red-500 text-red-400 rounded-lg hover:bg-red-900/20 transition-all"
+            >
+              📩 About Us
+            </motion.button>
+          </Link>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-center mb-12"
+        >
+          <Link href="/contact" passHref>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-6 py-3 bg-transparent border border-red-500 text-red-400 rounded-lg hover:bg-red-900/20 transition-all"
+            >
+              📩 Contact Us
+            </motion.button>
+          </Link>
+        </motion.div>
       </div>
     </div>
   );
