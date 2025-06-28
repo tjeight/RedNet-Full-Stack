@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase";
 import { SignJWT } from "jose";
 
-// Helper function to get JWT secret
 function getJwtSecret() {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error("JWT_SECRET is not defined in .env");
@@ -21,78 +19,77 @@ export async function POST(req: Request) {
     );
   }
 
-  // Supabase instance to query admin table
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () =>
-          cookieStore.getAll().map(({ name, value }) => ({ name, value })),
-        setAll: (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
-      },
+  const supabase = await createClient();
+
+  try {
+    // Get admin from DB
+    const { data: admin, error } = await supabase
+      .from("admins")
+      .select("id, email, password, full_name, blood_bank_id")
+      .eq("email", email)
+      .single();
+
+    if (error || !admin) {
+      console.log("Admin not found for email:", email);
+      return NextResponse.json(
+        { error: "Invalid credentials." },
+        { status: 401 }
+      );
     }
-  );
 
-  // Get admin from DB
-  const { data: admin, error } = await supabase
-    .from("admins")
-    .select("id, email, password, full_name, blood_bank_id")
-    .eq("email", email)
-    .single();
+    // Debug: Log password comparison details
+    console.log("Comparing passwords...");
+    console.log("Input password:", password);
+    console.log("Stored hash:", admin.password);
 
-  if (!admin || error) {
-    return NextResponse.json(
-      { error: "Invalid credentials." },
-      { status: 401 }
-    );
-  }
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      console.log("Password comparison failed");
+      return NextResponse.json(
+        { error: "Invalid credentials." },
+        { status: 401 }
+      );
+    }
 
-  // Check password
-  const isMatch = await bcrypt.compare(password, admin.password);
-  if (!isMatch) {
-    return NextResponse.json(
-      { error: "Invalid credentials." },
-      { status: 401 }
-    );
-  }
-
-  // ✅ Create JWT using `jose`
-  const jwt = await new SignJWT({
-    id: admin.id,
-    email: admin.email,
-    role: "blood-bank-admin",
-    blood_bank_id: admin.blood_bank_id,
-  })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("6h")
-    .sign(getJwtSecret());
-
-  // ✅ Set JWT cookie
-  const response = NextResponse.json({
-    success: true,
-    admin: {
+    // Create JWT
+    const jwt = await new SignJWT({
       id: admin.id,
-      name: admin.full_name,
       email: admin.email,
+      role: "blood-bank-admin",
       blood_bank_id: admin.blood_bank_id,
-    },
-  });
+    })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("6h")
+      .sign(getJwtSecret());
 
-  response.cookies.set({
-    name: "bb_admin_token",
-    value: jwt,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 6, // 6 hours
-  });
+    // Set cookie
+    const response = NextResponse.json({
+      success: true,
+      admin: {
+        id: admin.id,
+        name: admin.full_name,
+        email: admin.email,
+        blood_bank_id: admin.blood_bank_id,
+      },
+    });
 
-  return response;
+    response.cookies.set({
+      name: "bb_admin_token",
+      value: jwt,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 6,
+      sameSite: "strict",
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Login error:", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
