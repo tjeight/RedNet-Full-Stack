@@ -13,7 +13,12 @@ type BloodGroup = {
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[350px] w-full bg-gray-700 animate-pulse rounded-lg" />
+    ),
+  }
 );
 const TileLayer = dynamic(
   () => import("react-leaflet").then((mod) => mod.TileLayer),
@@ -40,15 +45,37 @@ const BloodBankDetailsPage = () => {
   const { slug } = useParams();
   const router = useRouter();
   const [bank, setBank] = useState<BloodBank | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
-      const res = await fetch(`/api/blood-banks/${slug}`);
-      const { data } = await res.json();
-      setBank(data);
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch(`/api/blood-banks/${slug}`);
+        const result = await res.json();
+
+        if (!res.ok || result.error) {
+          throw new Error(result.error || "Failed to fetch blood bank");
+        }
+
+        if (!result) {
+          throw new Error("Blood bank data is empty");
+        }
+
+        setBank(result);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Fix leaflet icons on client side only
     if (typeof window !== "undefined") {
       import("@/utils/fixLeafletIcons").then((mod) => mod.default?.());
     }
@@ -56,8 +83,43 @@ const BloodBankDetailsPage = () => {
     fetchDetails();
   }, [slug]);
 
-  if (!bank)
-    return <div className="p-6 text-center text-gray-300">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-400 mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading blood bank details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+        <div className="text-center p-6 bg-red-900/30 rounded-xl border border-red-700 max-w-md">
+          <h2 className="text-xl font-bold text-red-400 mb-2">Error</h2>
+          <p className="text-gray-300 mb-4">{error}</p>
+          <button
+            onClick={() => router.push("/")}
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-white"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!bank) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-300">No blood bank data available</p>
+        </div>
+      </div>
+    );
+  }
 
   const hasCoordinates = bank.latitude !== null && bank.longitude !== null;
 
@@ -154,7 +216,7 @@ const BloodBankDetailsPage = () => {
               >
                 <path
                   fillRule="evenodd"
-                  d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
+                  d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
                   clipRule="evenodd"
                 />
               </svg>
@@ -183,7 +245,7 @@ const BloodBankDetailsPage = () => {
             Available Blood Groups
           </h2>
 
-          {bank.blood_groups && bank.blood_groups.length > 0 ? (
+          {bank.blood_groups?.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {bank.blood_groups.map((group, index) => (
                 <div
