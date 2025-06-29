@@ -88,31 +88,31 @@ export async function GET() {
       .limit(10);
 
     // Process transactions to flatten the donor relationship
-    const processedTransactions = (recentTransactions || []).map((tx) => {
-      // Type guard for the donor relationship
-      const donor =
-        Array.isArray(tx.donors) && tx.donors.length > 0
-          ? tx.donors[0]
-          : undefined;
+    // const processedTransactions = (recentTransactions || []).map((tx) => {
+    //   // Type guard for the donor relationship
+    //   const donor =
+    //     Array.isArray(tx.donors) && tx.donors.length > 0
+    //       ? tx.donors[0]
+    //       : undefined;
 
-      return {
-        id: tx.id,
-        type: tx.type,
-        blood_type: tx.blood_type,
-        quantity: tx.quantity,
-        created_at: tx.created_at,
-        person_name: tx.person_name,
-        phone: tx.phone,
-        donor_id: tx.donor_id,
-        donor: donor
-          ? {
-              id: tx.donor_id,
-              full_name: donor.full_name,
-              phone: donor.phone,
-            }
-          : undefined,
-      };
-    });
+    //   return {
+    //     id: tx.id,
+    //     type: tx.type,
+    //     blood_type: tx.blood_type,
+    //     quantity: tx.quantity,
+    //     created_at: tx.created_at,
+    //     person_name: tx.person_name,
+    //     phone: tx.phone,
+    //     donor_id: tx.donor_id,
+    //     donor: donor
+    //       ? {
+    //           id: tx.donor_id,
+    //           full_name: donor.full_name,
+    //           phone: donor.phone,
+    //         }
+    //       : undefined,
+    //   };
+    // });
 
     // 5. Fetch recent donations for the chart (last 7 days)
     const sevenDaysAgo = new Date(

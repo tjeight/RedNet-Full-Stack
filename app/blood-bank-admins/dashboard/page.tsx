@@ -5,7 +5,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -56,6 +55,10 @@ type DashboardData = {
   }[];
 };
 
+type DonationData = {
+  name: string;
+  donations: number;
+};
 const COLORS = [
   "#FF6384",
   "#36A2EB",
@@ -153,7 +156,7 @@ export default function DashboardPage() {
   if (!dashboardData) return <p className="p-4">Error loading data</p>;
 
   // Use real data for the donations chart
-  const recentDonationsData = dashboardData.recentDonations;
+  const recentDonationsData: DonationData[] = dashboardData.recentDonations;
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">

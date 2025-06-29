@@ -36,7 +36,8 @@ const MapClickHandler = ({
         const { useMapEvents } = mod;
         return function MapEvents() {
           useMapEvents({
-            click(e) {
+            click(e: { latlng: { lat: number; lng: number } }) {
+              // <-- Added type here
               setCoordinates([e.latlng.lat, e.latlng.lng]);
             },
           });

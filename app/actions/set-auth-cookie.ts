@@ -2,7 +2,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase";
-import { cookies } from "next/headers";
 
 export async function setAuthCookie({
   access_token,

@@ -91,7 +91,6 @@
 
 import { createClient } from "@/utils/supabase";
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { getCoordinatesFromAddress } from "@/utils/geocode";
 
 export async function POST(req: Request) {
@@ -115,7 +114,7 @@ export async function POST(req: Request) {
       let coordinates = { latitude: null, longitude: null };
       try {
         coordinates = await getCoordinatesFromAddress(requestData.address);
-      } catch (error) {
+      } catch (geocodeError) {
         console.warn("Geocoding failed, using stored coordinates");
         coordinates = {
           latitude: requestData.latitude,

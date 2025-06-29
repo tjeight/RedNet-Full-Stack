@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminFromToken } from "@/utils/getAdminFromToken";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { CookieOptions } from "@supabase/ssr";
 
 export async function GET() {
   try {
@@ -16,10 +17,10 @@ export async function GET() {
           async get(name: string) {
             return (await cookieStore).get(name)?.value;
           },
-          async set(name: string, value: string, options: any) {
+          async set(name: string, value: string, options: CookieOptions) {
             (await cookieStore).set({ name, value, ...options });
           },
-          async remove(name: string, options: any) {
+          async remove(name: string, options: CookieOptions) {
             (await cookieStore).set({ name, value: "", ...options });
           },
         },
@@ -36,8 +37,9 @@ export async function GET() {
     }
 
     return NextResponse.json({ bloodGroups: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error as Error;
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -62,10 +64,10 @@ export async function PUT(req: Request) {
           async get(name: string) {
             return (await cookieStore).get(name)?.value;
           },
-          async set(name: string, value: string, options: any) {
+          async set(name: string, value: string, options: CookieOptions) {
             (await cookieStore).set({ name, value, ...options });
           },
-          async remove(name: string, options: any) {
+          async remove(name: string, options: CookieOptions) {
             (await cookieStore).set({ name, value: "", ...options });
           },
         },
@@ -86,7 +88,8 @@ export async function PUT(req: Request) {
     }
 
     return NextResponse.json({ updatedGroup: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error as Error;
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

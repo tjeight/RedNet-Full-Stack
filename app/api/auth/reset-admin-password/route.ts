@@ -82,11 +82,16 @@ export async function POST(request: Request) {
       { message: "Password updated successfully." },
       { status: 200 }
     );
-  } catch (err: any) {
-    console.error("Server error:", {
-      message: err.message,
-      stack: err.stack,
-    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("Server error:", {
+        message: err.message,
+        stack: err.stack,
+      });
+    } else {
+      console.error("Unknown error", err);
+    }
+
     return NextResponse.json(
       { error: "An unexpected error occurred." },
       { status: 500 }

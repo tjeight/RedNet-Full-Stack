@@ -39,9 +39,10 @@ export default function ForgotPassword() {
 
       setMessage("Password reset email sent! Check your inbox.");
       setEmail("");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      // Change from 'any' to 'unknown'
       console.error("Error:", err);
-      setError(err.message || "Something went wrong");
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
