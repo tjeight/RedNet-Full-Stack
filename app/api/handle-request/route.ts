@@ -115,7 +115,7 @@ export async function POST(req: Request) {
       try {
         coordinates = await getCoordinatesFromAddress(requestData.address);
       } catch (geocodeError) {
-        console.warn("Geocoding failed, using stored coordinates");
+        console.warn("Geocoding failed:", geocodeError);
         coordinates = {
           latitude: requestData.latitude,
           longitude: requestData.longitude,
