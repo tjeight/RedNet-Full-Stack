@@ -1,12 +1,13 @@
 import { createClient } from "@/utils/supabase";
 import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function GET(
-  _: Request,
+  request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   const supabase = await createClient();
-  const { slug } = params; // Removed 'await' since params is not a promise
+  const { slug } = params;
 
   const { data, error } = await supabase
     .from("blood_banks")
@@ -26,5 +27,5 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(data); // Removed wrapping object
+  return NextResponse.json(data);
 }
