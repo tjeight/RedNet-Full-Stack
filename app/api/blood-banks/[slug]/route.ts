@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   const supabase = await createClient();
-  const { slug } = await params;
+  const { slug } = params; // Removed 'await' since params is not a promise
 
   const { data, error } = await supabase
     .from("blood_banks")
@@ -26,5 +26,5 @@ export async function GET(
     );
   }
 
-  return NextResponse.json({ data });
+  return NextResponse.json(data); // Removed wrapping object
 }
