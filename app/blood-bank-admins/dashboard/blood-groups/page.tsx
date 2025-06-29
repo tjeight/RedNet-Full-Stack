@@ -33,9 +33,11 @@ export default function BloodGroupsPage() {
       if (!res.ok) throw new Error(data.error || "Failed to fetch");
       setBloodGroups(data.bloodGroups);
       setError("");
-    } catch (err: any) {
-      setError(err.message);
-      toast.error(err.message);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An unknown error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -64,8 +66,10 @@ export default function BloodGroupsPage() {
       toast.success("Blood stock updated successfully");
       setEditingGroup(null);
       fetchBloodGroups();
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An unknown error occurred";
+      toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }
@@ -100,7 +104,7 @@ export default function BloodGroupsPage() {
               Blood Inventory
             </h1>
             <p className="text-gray-400 mt-2">
-              Manage your blood bank's current stock levels
+              Manage your blood bank&apos;s current stock levels
             </p>
           </div>
         </div>

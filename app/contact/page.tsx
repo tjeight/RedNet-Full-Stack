@@ -38,7 +38,7 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Have questions&apos; Reach out to our team 24/7
+            Have questions&apos; Reach out to our team 24 by 7
           </p>
         </motion.div>
 
@@ -60,7 +60,7 @@ export default function ContactPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="p-4 bg-green-900/30 text-green-400 rounded-lg border border-green-700/50 mb-6"
               >
-                Thank you! We'll respond within 24 hours.
+                Thank you! We&apos;ll respond within 24 hours.
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
