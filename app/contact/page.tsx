@@ -2,7 +2,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useState } from "react";
 
 export default function ContactPage() {
@@ -39,7 +38,7 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Have questions? Reach out to our team 24/7
+            Have questions&apos; Reach out to our team 24/7
           </p>
         </motion.div>
 

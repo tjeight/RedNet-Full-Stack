@@ -39,8 +39,6 @@ export async function POST(request: Request) {
     // Enhanced reset password with better configuration
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/super-admin/reset-password`,
-      // Add captcha if needed for security
-      // captchaToken: captchaToken
     });
 
     if (error) {
@@ -79,7 +77,7 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Server error:", err);
     return NextResponse.json(
       { error: "Invalid request body or server error" },

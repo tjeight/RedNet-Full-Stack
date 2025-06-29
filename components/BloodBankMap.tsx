@@ -2,8 +2,7 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useEffect } from "react";
-import L from "leaflet";
+
 import "@/utils/fixLeafletIcons"; // fixes default marker icons
 
 type Props = {

@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   }
 
   const admin = await getAdminFromToken();
-  const cookieStore =await  cookies();
+  const cookieStore = await cookies();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,18 +50,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: donorError.message }, { status: 500 });
   }
 
-  // Step 2: Create transaction
-  const { data: transaction, error: txError } = await supabase
-    .from("transactions")
-    .insert({
-      blood_bank_id: admin.blood_bank_id,
-      type: "donation",
-      blood_type,
-      quantity,
-      person_name: full_name,
-      phone,
-      donor_id: donor.id,
-    });
+  // Step 2: Create transaction (removed unused transaction data destructuring)
+  const { error: txError } = await supabase.from("transactions").insert({
+    blood_bank_id: admin.blood_bank_id,
+    type: "donation",
+    blood_type,
+    quantity,
+    person_name: full_name,
+    phone,
+    donor_id: donor.id,
+  });
 
   if (txError) {
     return NextResponse.json({ error: txError.message }, { status: 500 });

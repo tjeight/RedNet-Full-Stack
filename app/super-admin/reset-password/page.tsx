@@ -103,9 +103,10 @@ export default function ResetPassword() {
 
       setMessage("Password reset successfully! Redirecting to login...");
       setTimeout(() => router.push("/super-admin/login"), 2500);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      // Change from 'any' to 'unknown'
       console.error("Reset password error:", err);
-      setError(err.message || "Something went wrong.");
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setIsLoading(false);
     }
