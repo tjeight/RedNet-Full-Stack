@@ -11,7 +11,7 @@ const AddBillingPage = () => {
     bloodType: "",
     quantity: 1,
     price: 0,
-    paymentMode: "cash", // Added payment mode
+    paymentMode: "cash",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,11 +31,46 @@ const AddBillingPage = () => {
     setIsSubmitting(true);
     setError("");
 
+    // Frontend validation
+    if (!formData.buyerName.trim()) {
+      setError("Buyer name is required");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formData.bloodType) {
+      setError("Blood type is required");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (formData.quantity <= 0) {
+      setError("Quantity must be greater than 0");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (formData.price < 0) {
+      setError("Price cannot be negative");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      // Convert price to paisa/cents by multiplying by 100
+      const requestData = {
+        ...formData,
+        price: Math.round(formData.price * 100), // Convert to integer
+        paymentMode:
+          formData.paymentMode === "bank transfer"
+            ? "Bank Transfer"
+            : formData.paymentMode,
+      };
+
       const res = await fetch("/api/billing/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestData),
       });
 
       const data = await res.json();
@@ -44,7 +79,8 @@ const AddBillingPage = () => {
         throw new Error(data.error || "Failed to create billing");
       }
 
-      router.push("/blood-bank-admins/dashboard/billing/add");
+      // Clear form and redirect to billing list
+      router.push("/blood-bank-admins/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -52,9 +88,17 @@ const AddBillingPage = () => {
     }
   };
 
+  const bloodTypes = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+  const paymentModes = [
+    { value: "cash", label: "Cash" },
+    { value: "card", label: "Card" },
+    { value: "Bank Transfer", label: "Bank Transfer" },
+    { value: "upi", label: "UPI" },
+    { value: "online", label: "Online Payment" },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Added Back Button */}
       <button
         onClick={() => router.push("/blood-bank-admins/dashboard")}
         className="mb-6 ml-4 flex items-center text-gray-400 hover:text-white transition-colors"
@@ -99,7 +143,7 @@ const AddBillingPage = () => {
                 name="buyerName"
                 type="text"
                 className="w-full bg-gray-700/50 border border-gray-600/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                placeholder="Tejas Jagdale"
+                placeholder="Enter buyer name"
                 value={formData.buyerName}
                 onChange={handleChange}
                 required
@@ -134,13 +178,11 @@ const AddBillingPage = () => {
                 <option value="" disabled className="text-gray-500">
                   Select Blood Type
                 </option>
-                {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map(
-                  (type) => (
-                    <option key={type} value={type} className="bg-gray-800">
-                      {type}
-                    </option>
-                  )
-                )}
+                {bloodTypes.map((type) => (
+                  <option key={type} value={type} className="bg-gray-800">
+                    {type}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -162,7 +204,7 @@ const AddBillingPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Price (USD) <span className="text-red-500">*</span>
+                  Price (INR) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-gray-400">₹</span>
@@ -185,19 +227,20 @@ const AddBillingPage = () => {
                 Payment Mode <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
-                {["cash", "card", "bank transfer", "upi"].map((mode) => (
-                  <label key={mode} className="flex items-center space-x-2">
+                {paymentModes.map((mode) => (
+                  <label
+                    key={mode.value}
+                    className="flex items-center space-x-2"
+                  >
                     <input
                       type="radio"
                       name="paymentMode"
-                      value={mode}
-                      checked={formData.paymentMode === mode}
+                      value={mode.value}
+                      checked={formData.paymentMode === mode.value}
                       onChange={handleChange}
                       className="h-4 w-4 text-red-600 border-gray-600 focus:ring-red-500 bg-gray-700"
                     />
-                    <span className="text-sm text-gray-300 capitalize">
-                      {mode}
-                    </span>
+                    <span className="text-sm text-gray-300">{mode.label}</span>
                   </label>
                 ))}
               </div>

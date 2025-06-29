@@ -3,6 +3,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -55,7 +56,7 @@ export default function AboutPage() {
             whileHover={{ scale: 1.02 }}
             className="bg-gray-800/50 rounded-xl overflow-hidden border border-gray-700/30"
           >
-            <img
+            <Image
               src="/team.jpg"
               alt="RedNet Team"
               className="w-full h-full object-cover"
@@ -168,7 +169,7 @@ export default function AboutPage() {
                 className="text-center"
               >
                 <div className="mb-4 rounded-full overflow-hidden border-2 border-red-500/30 w-32 h-32 mx-auto">
-                  <img
+                  <Image
                     src={member.img}
                     alt={member.name}
                     className="w-full h-full object-cover"
