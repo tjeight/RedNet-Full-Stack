@@ -472,7 +472,7 @@ type BloodBank = {
 export default function HomePage() {
   const [bloodBanks, setBloodBanks] = useState<BloodBank[]>([]);
   const [search, setSearch] = useState("");
-  const [bloodGroupFilter, setBloodGroupFilter] = useState("A+"); // Updated default value
+  const [bloodGroupFilter, setBloodGroupFilter] = useState("A+");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -497,7 +497,7 @@ export default function HomePage() {
       }));
       setBloodBanks(filteredBanks);
       setLastUpdated(new Date().toISOString());
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to load blood banks:", err);
       setError("Failed to load blood banks. Please try again later.");
     } finally {
@@ -687,8 +687,7 @@ export default function HomePage() {
                       <SelectValue placeholder="All Types" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="A+">All Types</SelectItem>{" "}
-                      {/* Updated value prop */}
+                      <SelectItem value="A+">All Types</SelectItem>
                       {bloodGroups.map((group) => (
                         <SelectItem key={group} value={group}>
                           {group}
