@@ -59,6 +59,8 @@ export default function AboutPage() {
             <Image
               src="/team.jpg"
               alt="RedNet Team"
+              width={500}
+              height={300}
               className="w-full h-full object-cover"
             />
           </motion.div>
@@ -170,6 +172,8 @@ export default function AboutPage() {
               >
                 <div className="mb-4 rounded-full overflow-hidden border-2 border-red-500/30 w-32 h-32 mx-auto">
                   <Image
+                    height={500}
+                    width={500}
                     src={member.img}
                     alt={member.name}
                     className="w-full h-full object-cover"
