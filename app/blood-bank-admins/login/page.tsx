@@ -339,7 +339,7 @@ const AdminLogin = () => {
       }
 
       router.push("/blood-bank-admins/dashboard");
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
