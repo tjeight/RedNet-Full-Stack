@@ -283,6 +283,256 @@
 
 // export default AdminLogin;
 
+// "use client";
+// import type React from "react";
+// import { useState } from "react";
+// import { useRouter } from "next/navigation";
+// import Link from "next/link";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
+// import { Checkbox } from "@/components/ui/checkbox";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
+// import {
+//   ArrowLeft,
+//   Mail,
+//   Lock,
+//   Heart,
+//   Shield,
+//   AlertCircle,
+//   Eye,
+//   EyeOff,
+// } from "lucide-react";
+
+// const AdminLogin = () => {
+//   const router = useRouter();
+//   const [error, setError] = useState("");
+//   const [email, setEmail] = useState<string>("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [isLoading, setIsLoading] = useState(false);
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setError("");
+//     setIsLoading(true);
+
+//     try {
+//       const res = await fetch("/api/auth/admin-login", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ email, password }),
+//       });
+
+//       const data = await res.json();
+
+//       if (!res.ok) {
+//         setError(data.error);
+//         return;
+//       }
+
+//       router.push("/blood-bank-admins/dashboard");
+//     } catch {
+//       setError("An unexpected error occurred. Please try again.");
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50 flex items-center justify-center p-4 relative">
+//       {/* Background Pattern */}
+//       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.05),transparent_50%)]" />
+//       <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(59,130,246,0.03)_50%,transparent_75%)]" />
+
+//       {/* Back Button */}
+//       <Link
+//         href="/"
+//         className="absolute top-6 left-6 z-10 inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors group"
+//       >
+//         <ArrowLeft className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+//         <span className="font-medium">Back to Home</span>
+//       </Link>
+
+//       {/* Main Login Card */}
+//       <div className="w-full max-w-md relative z-10">
+//         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+//           <CardHeader className="text-center pb-8">
+//             {/* Logo/Icon */}
+//             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+//               <div className="relative">
+//                 <Heart className="h-8 w-8 text-white" fill="currentColor" />
+//                 <Shield className="h-4 w-4 text-white absolute -top-1 -right-1 bg-blue-500 rounded-full p-0.5" />
+//               </div>
+//             </div>
+
+//             <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
+//               Blood Bank Admin
+//             </CardTitle>
+//             <CardDescription className="text-gray-600 text-base">
+//               Secure administrative access to manage blood bank operations
+//             </CardDescription>
+//           </CardHeader>
+
+//           <CardContent className="space-y-6">
+//             {/* Error Alert */}
+//             {error && (
+//               <Alert variant="destructive" className="border-red-200 bg-red-50">
+//                 <AlertCircle className="h-4 w-4" />
+//                 <AlertDescription className="text-red-800">
+//                   {error}
+//                 </AlertDescription>
+//               </Alert>
+//             )}
+
+//             {/* Login Form */}
+//             <form onSubmit={handleSubmit} className="space-y-6">
+//               <div className="space-y-2">
+//                 <Label htmlFor="email" className="text-gray-700 font-medium">
+//                   Email Address
+//                 </Label>
+//                 <div className="relative">
+//                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+//                   <Input
+//                     id="email"
+//                     type="email"
+//                     value={email}
+//                     onChange={(e) => setEmail(e.target.value)}
+//                     placeholder="admin@bloodbank.com"
+//                     className="pl-10 py-6 text-base border-gray-200 focus:border-red-300 focus:ring-red-200"
+//                     required
+//                     disabled={isLoading}
+//                   />
+//                 </div>
+//               </div>
+
+//               <div className="space-y-2">
+//                 <Label htmlFor="password" className="text-gray-700 font-medium">
+//                   Password
+//                 </Label>
+//                 <div className="relative">
+//                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+//                   <Input
+//                     id="password"
+//                     type={showPassword ? "text" : "password"}
+//                     value={password}
+//                     onChange={(e) => setPassword(e.target.value)}
+//                     placeholder="Enter your password"
+//                     className="pl-10 pr-10 py-6 text-base border-gray-200 focus:border-red-300 focus:ring-red-200"
+//                     required
+//                     disabled={isLoading}
+//                   />
+//                   <button
+//                     type="button"
+//                     onClick={() => setShowPassword(!showPassword)}
+//                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+//                     disabled={isLoading}
+//                   >
+//                     {showPassword ? (
+//                       <EyeOff className="h-5 w-5" />
+//                     ) : (
+//                       <Eye className="h-5 w-5" />
+//                     )}
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <div className="flex items-center justify-between">
+//                 <div className="flex items-center space-x-2">
+//                   <Checkbox id="remember" disabled={isLoading} />
+//                   <Label
+//                     htmlFor="remember"
+//                     className="text-sm text-gray-600 cursor-pointer"
+//                   >
+//                     Remember this device
+//                   </Label>
+//                 </div>
+//                 <Link
+//                   href="#"
+//                   className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+//                 >
+//                   Forgot password?
+//                 </Link>
+//               </div>
+
+//               <Button
+//                 type="submit"
+//                 className="w-full bg-red-600 hover:bg-red-700 text-white py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+//                 disabled={isLoading}
+//               >
+//                 {isLoading ? (
+//                   <div className="flex items-center">
+//                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+//                     Authenticating...
+//                   </div>
+//                 ) : (
+//                   <div className="flex items-center">
+//                     <Shield className="w-5 h-5 mr-2" />
+//                     Sign In Securely
+//                   </div>
+//                 )}
+//               </Button>
+//             </form>
+
+//             {/* Additional Info */}
+//             <div className="pt-6 border-t border-gray-100">
+//               <div className="text-center space-y-3">
+//                 <p className="text-sm text-gray-600">
+//                   Need administrative access?
+//                 </p>
+//                 <Link
+//                   href="#"
+//                   className="inline-flex items-center text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+//                 >
+//                   Request credentials
+//                   <ArrowLeft className="w-4 h-4 ml-1 rotate-180" />
+//                 </Link>
+//               </div>
+//             </div>
+
+//             {/* Security Notice */}
+//             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+//               <div className="flex items-start space-x-3">
+//                 <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+//                 <div>
+//                   <h4 className="text-sm font-medium text-blue-900 mb-1">
+//                     Security Notice
+//                   </h4>
+//                   <p className="text-xs text-blue-700 leading-relaxed">
+//                     This is a secure administrative portal. All login attempts
+//                     are monitored and logged for security purposes.
+//                   </p>
+//                 </div>
+//               </div>
+//             </div>
+//           </CardContent>
+//         </Card>
+
+//         {/* Footer */}
+//         <div className="text-center mt-8">
+//           <p className="text-sm text-gray-500">
+//             © 2024 RedNet Blood Network. All rights reserved.
+//           </p>
+//         </div>
+//       </div>
+
+//       {/* Decorative Elements */}
+//       <div className="absolute top-20 left-20 w-32 h-32 bg-red-100 rounded-full opacity-20 blur-3xl" />
+//       <div className="absolute bottom-20 right-20 w-40 h-40 bg-blue-100 rounded-full opacity-20 blur-3xl" />
+//     </div>
+//   );
+// };
+
+// export default AdminLogin;
+
+
 "use client";
 import type React from "react";
 import { useState } from "react";
@@ -347,46 +597,60 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50 flex items-center justify-center p-4 relative">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.05),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(59,130,246,0.03)_50%,transparent_75%)]" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.05),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.05),transparent_50%)]" />
+      </div>
+
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
 
       {/* Back Button */}
       <Link
         href="/"
-        className="absolute top-6 left-6 z-10 inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors group"
+        className="absolute top-6 left-6 z-20 inline-flex items-center text-gray-400 hover:text-white transition-all duration-300 group bg-gray-800/50 backdrop-blur-sm rounded-full px-4 py-2 border border-gray-700/50 hover:bg-gray-700/50"
       >
-        <ArrowLeft className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+        <ArrowLeft className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
         <span className="font-medium">Back to Home</span>
       </Link>
 
       {/* Main Login Card */}
       <div className="w-full max-w-md relative z-10">
-        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-          <CardHeader className="text-center pb-8">
+        <Card className="shadow-2xl border-0 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 relative overflow-hidden">
+          {/* Card Glow Effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-transparent to-blue-500/10 opacity-50"></div>
+
+          <CardHeader className="text-center pb-8 relative z-10">
             {/* Logo/Icon */}
-            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-red-500/30 ring-4 ring-red-500/20 relative">
               <div className="relative">
-                <Heart className="h-8 w-8 text-white" fill="currentColor" />
-                <Shield className="h-4 w-4 text-white absolute -top-1 -right-1 bg-blue-500 rounded-full p-0.5" />
+                <Heart className="h-10 w-10 text-white" fill="currentColor" />
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/50">
+                  <Shield className="h-3 w-3 text-white" />
+                </div>
               </div>
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 blur-xl opacity-30 animate-pulse"></div>
             </div>
 
-            <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
+            <CardTitle className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
               Blood Bank Admin
             </CardTitle>
-            <CardDescription className="text-gray-600 text-base">
+            <CardDescription className="text-gray-400 text-base">
               Secure administrative access to manage blood bank operations
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 relative z-10">
             {/* Error Alert */}
             {error && (
-              <Alert variant="destructive" className="border-red-200 bg-red-50">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-red-800">
+              <Alert variant="destructive" className="border-red-500/50 bg-red-500/10 backdrop-blur-sm">
+                <AlertCircle className="h-4 w-4 text-red-400" />
+                <AlertDescription className="text-red-300">
                   {error}
                 </AlertDescription>
               </Alert>
@@ -395,18 +659,18 @@ const AdminLogin = () => {
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-medium">
+                <Label htmlFor="email" className="text-gray-300 font-medium">
                   Email Address
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@bloodbank.com"
-                    className="pl-10 py-6 text-base border-gray-200 focus:border-red-300 focus:ring-red-200"
+                    className="pl-10 py-6 text-base bg-gray-900/50 border-gray-600 text-white placeholder-gray-500 focus:border-red-400 focus:ring-red-400/50 backdrop-blur-sm transition-all duration-300"
                     required
                     disabled={isLoading}
                   />
@@ -414,25 +678,25 @@ const AdminLogin = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700 font-medium">
+                <Label htmlFor="password" className="text-gray-300 font-medium">
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="pl-10 pr-10 py-6 text-base border-gray-200 focus:border-red-300 focus:ring-red-200"
+                    className="pl-10 pr-10 py-6 text-base bg-gray-900/50 border-gray-600 text-white placeholder-gray-500 focus:border-red-400 focus:ring-red-400/50 backdrop-blur-sm transition-all duration-300"
                     required
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors duration-300"
                     disabled={isLoading}
                   >
                     {showPassword ? (
@@ -446,17 +710,21 @@ const AdminLogin = () => {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="remember" disabled={isLoading} />
+                  <Checkbox
+                    id="remember"
+                    disabled={isLoading}
+                    className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                  />
                   <Label
                     htmlFor="remember"
-                    className="text-sm text-gray-600 cursor-pointer"
+                    className="text-sm text-gray-400 cursor-pointer hover:text-gray-300 transition-colors"
                   >
                     Remember this device
                   </Label>
                 </div>
                 <Link
                   href="#"
-                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                  className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors duration-300"
                 >
                   Forgot password?
                 </Link>
@@ -464,7 +732,7 @@ const AdminLogin = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-6 text-base font-semibold shadow-xl shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300 border-0"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -482,30 +750,30 @@ const AdminLogin = () => {
             </form>
 
             {/* Additional Info */}
-            <div className="pt-6 border-t border-gray-100">
+            <div className="pt-6 border-t border-gray-700/50">
               <div className="text-center space-y-3">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-400">
                   Need administrative access?
                 </p>
                 <Link
                   href="#"
-                  className="inline-flex items-center text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                  className="inline-flex items-center text-sm text-red-400 hover:text-red-300 font-medium transition-colors duration-300 group"
                 >
                   Request credentials
-                  <ArrowLeft className="w-4 h-4 ml-1 rotate-180" />
+                  <ArrowLeft className="w-4 h-4 ml-1 rotate-180 group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
               </div>
             </div>
 
             {/* Security Notice */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-500/10 border border-blue-500/50 rounded-lg p-4 backdrop-blur-sm">
               <div className="flex items-start space-x-3">
-                <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <Shield className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-sm font-medium text-blue-900 mb-1">
+                  <h4 className="text-sm font-medium text-blue-300 mb-1">
                     Security Notice
                   </h4>
-                  <p className="text-xs text-blue-700 leading-relaxed">
+                  <p className="text-xs text-blue-200/80 leading-relaxed">
                     This is a secure administrative portal. All login attempts
                     are monitored and logged for security purposes.
                   </p>
@@ -523,9 +791,10 @@ const AdminLogin = () => {
         </div>
       </div>
 
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-20 w-32 h-32 bg-red-100 rounded-full opacity-20 blur-3xl" />
-      <div className="absolute bottom-20 right-20 w-40 h-40 bg-blue-100 rounded-full opacity-20 blur-3xl" />
+      {/* Floating Particles */}
+      <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-red-500/30 rounded-full animate-ping"></div>
+      <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-blue-500/40 rounded-full animate-ping delay-1000"></div>
+      <div className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 bg-purple-500/30 rounded-full animate-ping delay-500"></div>
     </div>
   );
 };
