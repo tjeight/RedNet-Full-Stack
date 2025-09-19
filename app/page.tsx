@@ -427,6 +427,503 @@
 //   );
 // }
 
+
+//  Second home page comments
+
+// "use client";
+// import { useEffect, useState } from "react";
+// import { motion } from "framer-motion";
+// import Link from "next/link";
+// import { Button } from "@/components/ui/button";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+// import { Badge } from "@/components/ui/badge";
+// import { Separator } from "@/components/ui/separator";
+// import {
+//   RefreshCw,
+//   Search,
+//   MapPin,
+//   Phone,
+//   Heart,
+//   Users,
+//   Building2,
+//   Clock,
+//   AlertCircle,
+// } from "lucide-react";
+
+// type BloodGroup = {
+//   type: string;
+//   quantity: number;
+// };
+
+// type BloodBank = {
+//   id: string;
+//   name: string;
+//   address?: string;
+//   phone?: string;
+//   slug: string;
+//   blood_groups?: BloodGroup[];
+// };
+
+// export default function HomePage() {
+//   const [bloodBanks, setBloodBanks] = useState<BloodBank[]>([]);
+//   const [search, setSearch] = useState("");
+//   const [bloodGroupFilter, setBloodGroupFilter] = useState("A+");
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+//   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+//   const [refreshInterval, setRefreshInterval] = useState(3600000);
+
+//   const fetchBloodBanks = async () => {
+//     try {
+//       setIsLoading(true);
+//       setError(null);
+//       const res = await fetch(`/api/rednet/blood-banks?t=${Date.now()}`);
+//       if (!res.ok) {
+//         throw new Error(`HTTP error! status: ${res.status}`);
+//       }
+//       const data = await res.json();
+//       if (!data.bloodBanks) {
+//         throw new Error("No blood banks data received");
+//       }
+//       const filteredBanks = data.bloodBanks.map((bank: BloodBank) => ({
+//         ...bank,
+//         blood_groups:
+//           bank.blood_groups?.filter((group) => group.quantity > 0) || [],
+//       }));
+//       setBloodBanks(filteredBanks);
+//       setLastUpdated(new Date().toISOString());
+//     } catch (err: unknown) {
+//       console.error("Failed to load blood banks:", err);
+//       setError("Failed to load blood banks. Please try again later.");
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchBloodBanks();
+//   }, []);
+
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       fetchBloodBanks();
+//     }, refreshInterval);
+//     return () => clearInterval(interval);
+//   }, [refreshInterval]);
+
+//   const filteredBanks = bloodBanks.filter((bank) => {
+//     const matchesName = bank.name.toLowerCase().includes(search.toLowerCase());
+//     const matchesBloodGroup =
+//       bloodGroupFilter === "" ||
+//       (bank.blood_groups &&
+//         bank.blood_groups.some(
+//           (group) => group.type.toLowerCase() === bloodGroupFilter.toLowerCase()
+//         ));
+//     return matchesName && matchesBloodGroup;
+//   });
+
+//   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50">
+//       <div className="container mx-auto px-4 py-8 max-w-7xl">
+//         {/* Header Section */}
+//         <motion.div
+//           initial={{ opacity: 0, y: -20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8"
+//         >
+//           <div className="flex items-center gap-3">
+//             {lastUpdated && (
+//               <div className="flex items-center gap-2 text-sm text-muted-foreground">
+//                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+//                 <Clock className="w-4 h-4" />
+//                 <span>
+//                   Updated: {new Date(lastUpdated).toLocaleTimeString()}
+//                 </span>
+//               </div>
+//             )}
+//           </div>
+//           <div className="flex items-center gap-3">
+//             <Button
+//               onClick={fetchBloodBanks}
+//               disabled={isLoading}
+//               variant="outline"
+//               size="sm"
+//               className="flex items-center gap-2 bg-transparent"
+//             >
+//               <RefreshCw
+//                 className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+//               />
+//               {isLoading ? "Refreshing..." : "Refresh"}
+//             </Button>
+//             <Select
+//               value={refreshInterval.toString()}
+//               onValueChange={(value) => setRefreshInterval(Number(value))}
+//               disabled={isLoading}
+//             >
+//               <SelectTrigger className="w-32">
+//                 <SelectValue />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 <SelectItem value="3600000">60m refresh</SelectItem>
+//               </SelectContent>
+//             </Select>
+//           </div>
+//         </motion.div>
+
+//         {/* Hero Section */}
+//         <motion.div
+//           initial={{ opacity: 0, y: 30 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           transition={{ duration: 0.6 }}
+//           className="text-center mb-12"
+//         >
+//           <div className="flex justify-center mb-6">
+//             <div className="relative">
+//               <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
+//                 <Heart className="w-10 h-10 text-white" fill="currentColor" />
+//               </div>
+//               <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+//                 <Users className="w-3 h-3 text-white" />
+//               </div>
+//             </div>
+//           </div>
+//           <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+//             Red<span className="text-red-600">Net</span>
+//           </h1>
+//           <p className="text-xl text-gray-600 mb-2 font-medium">
+//             Blood Network System
+//           </p>
+//           <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed">
+//             Connecting blood donors, recipients, and banks for a life-saving
+//             ecosystem.
+//             <br />
+//             <span className="text-red-600 font-semibold">
+//               Every drop counts. Every life matters.
+//             </span>
+//           </p>
+//         </motion.div>
+
+//         {/* Action Buttons */}
+//         <motion.div
+//           initial={{ opacity: 0, y: 20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           transition={{ delay: 0.2, duration: 0.6 }}
+//           className="flex flex-wrap justify-center gap-4 mb-12"
+//         >
+//           <Link href="/request-blood-bank">
+//             <Button
+//               size="lg"
+//               className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg"
+//             >
+//               <Building2 className="w-5 h-5 mr-2" />
+//               Add Blood Bank
+//             </Button>
+//           </Link>
+//           <Link href="/super-admin/login">
+//             <Button
+//               size="lg"
+//               variant="outline"
+//               className="border-purple-200 text-purple-700 hover:bg-purple-50 px-8 py-6 text-lg bg-transparent"
+//             >
+//               <Users className="w-5 h-5 mr-2" />
+//               Super Admin
+//             </Button>
+//           </Link>
+//           <Link href="/blood-bank-admins/login">
+//             <Button
+//               size="lg"
+//               variant="outline"
+//               className="border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-6 text-lg bg-transparent"
+//             >
+//               <Heart className="w-5 h-5 mr-2" />
+//               Bank Admin
+//             </Button>
+//           </Link>
+//         </motion.div>
+
+//         {/* Search and Filter Section */}
+//         <motion.div
+//           initial={{ opacity: 0, y: 20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           transition={{ delay: 0.4, duration: 0.6 }}
+//           className="mb-8"
+//         >
+//           <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+//             <CardHeader className="pb-4">
+//               <CardTitle className="text-center text-gray-800 flex items-center justify-center gap-2">
+//                 <Search className="w-5 h-5" />
+//                 Find Blood Banks
+//               </CardTitle>
+//             </CardHeader>
+//             <CardContent className="space-y-6">
+//               <div className="relative max-w-2xl mx-auto">
+//                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+//                 <Input
+//                   type="text"
+//                   placeholder="Search blood banks by name..."
+//                   value={search}
+//                   onChange={(e) => setSearch(e.target.value)}
+//                   className="pl-10 py-6 text-lg border-gray-200 focus:border-red-300 focus:ring-red-200"
+//                 />
+//               </div>
+
+//               <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+//                 <div className="flex items-center gap-3">
+//                   <span className="text-gray-700 font-medium">
+//                     Filter by blood type:
+//                   </span>
+//                   <Select
+//                     value={bloodGroupFilter}
+//                     onValueChange={setBloodGroupFilter}
+//                   >
+//                     <SelectTrigger className="w-40">
+//                       <SelectValue placeholder="All Types" />
+//                     </SelectTrigger>
+//                     <SelectContent>
+//                       <SelectItem value="A+">All Types</SelectItem>
+//                       {bloodGroups.map((group) => (
+//                         <SelectItem key={group} value={group}>
+//                           {group}
+//                         </SelectItem>
+//                       ))}
+//                     </SelectContent>
+//                   </Select>
+//                 </div>
+
+//                 <div className="flex flex-wrap gap-2">
+//                   {bloodGroups.map((group) => (
+//                     <Button
+//                       key={group}
+//                       variant={
+//                         bloodGroupFilter === group ? "default" : "outline"
+//                       }
+//                       size="sm"
+//                       onClick={() =>
+//                         setBloodGroupFilter(
+//                           bloodGroupFilter === group ? "" : group
+//                         )
+//                       }
+//                       className={
+//                         bloodGroupFilter === group
+//                           ? "bg-red-600 hover:bg-red-700 text-white"
+//                           : "border-gray-200 text-gray-700 hover:bg-gray-50"
+//                       }
+//                     >
+//                       {group}
+//                     </Button>
+//                   ))}
+//                 </div>
+//               </div>
+//             </CardContent>
+//           </Card>
+//         </motion.div>
+
+//         {/* Error Message */}
+//         {error && (
+//           <motion.div
+//             initial={{ opacity: 0, scale: 0.95 }}
+//             animate={{ opacity: 1, scale: 1 }}
+//             className="mb-8"
+//           >
+//             <Card className="border-red-200 bg-red-50">
+//               <CardContent className="pt-6">
+//                 <div className="flex items-center justify-center text-red-700">
+//                   <AlertCircle className="w-5 h-5 mr-2" />
+//                   <span className="font-medium">Error: </span>
+//                   <span className="ml-1">{error}</span>
+//                 </div>
+//               </CardContent>
+//             </Card>
+//           </motion.div>
+//         )}
+
+//         {/* Blood Banks Grid */}
+//         {isLoading ? (
+//           <div className="flex flex-col justify-center items-center py-20">
+//             <div className="w-16 h-16 border-4 border-red-200 border-t-red-600 rounded-full animate-spin mb-4" />
+//             <p className="text-gray-600 text-lg">Loading blood banks...</p>
+//           </div>
+//         ) : (
+//           <motion.div
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             transition={{ delay: 0.6, duration: 0.6 }}
+//           >
+//             {filteredBanks.length === 0 ? (
+//               <Card className="text-center py-16 bg-gray-50">
+//                 <CardContent className="pt-6">
+//                   <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+//                   <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+//                     {search || bloodGroupFilter
+//                       ? "No matching blood banks found"
+//                       : "No blood banks available yet"}
+//                   </h3>
+//                   <p className="text-gray-500">
+//                     {search || bloodGroupFilter
+//                       ? "Try adjusting your search criteria"
+//                       : "Be the first to add a blood bank to the network"}
+//                   </p>
+//                 </CardContent>
+//               </Card>
+//             ) : (
+//               <>
+//                 <div className="text-center mb-8">
+//                   <Badge variant="secondary" className="text-lg px-4 py-2">
+//                     Found {filteredBanks.length} blood bank
+//                     {filteredBanks.length !== 1 ? "s" : ""}
+//                   </Badge>
+//                 </div>
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//                   {filteredBanks.map((bank, index) => (
+//                     <motion.div
+//                       key={bank.id}
+//                       initial={{ opacity: 0, y: 20 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       transition={{ delay: 0.1 + index * 0.05 }}
+//                       whileHover={{ y: -4 }}
+//                       className="h-full"
+//                     >
+//                       <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 border-0 bg-white">
+//                         <CardHeader className="pb-4">
+//                           <div className="flex items-start justify-between">
+//                             <CardTitle className="text-xl text-gray-800 leading-tight">
+//                               {bank.name}
+//                             </CardTitle>
+//                             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse flex-shrink-0 mt-1" />
+//                           </div>
+//                         </CardHeader>
+//                         <CardContent className="space-y-4">
+//                           <div className="space-y-3 text-gray-600">
+//                             <div className="flex items-start gap-3">
+//                               <MapPin className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+//                               <span className="text-sm leading-relaxed">
+//                                 {bank.address || "Address not provided"}
+//                               </span>
+//                             </div>
+//                             <div className="flex items-center gap-3">
+//                               <Phone className="w-5 h-5 text-blue-500 flex-shrink-0" />
+//                               <span className="text-sm">
+//                                 {bank.phone || "Phone not provided"}
+//                               </span>
+//                             </div>
+//                           </div>
+
+//                           {bank.blood_groups &&
+//                             bank.blood_groups.length > 0 && (
+//                               <>
+//                                 <Separator />
+//                                 <div>
+//                                   <div className="flex items-center gap-2 mb-3">
+//                                     <Heart className="w-4 h-4 text-red-500" />
+//                                     <span className="text-sm font-medium text-gray-700">
+//                                       Available Blood Types
+//                                     </span>
+//                                   </div>
+//                                   <div className="flex flex-wrap gap-2">
+//                                     {bank.blood_groups.map((group) => (
+//                                       <Badge
+//                                         key={group.type}
+//                                         variant={
+//                                           bloodGroupFilter &&
+//                                             group.type.toLowerCase() ===
+//                                             bloodGroupFilter.toLowerCase()
+//                                             ? "default"
+//                                             : "secondary"
+//                                         }
+//                                         className={
+//                                           bloodGroupFilter &&
+//                                             group.type.toLowerCase() ===
+//                                             bloodGroupFilter.toLowerCase()
+//                                             ? "bg-red-600 hover:bg-red-700"
+//                                             : "bg-red-100 text-red-700 hover:bg-red-200"
+//                                         }
+//                                       >
+//                                         {group.type}
+//                                       </Badge>
+//                                     ))}
+//                                   </div>
+//                                 </div>
+//                               </>
+//                             )}
+
+//                           <Separator />
+//                           <Link
+//                             href={`/blood-banks/${bank.slug}`}
+//                             className="block"
+//                           >
+//                             <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+//                               View Details
+//                               <svg
+//                                 className="w-4 h-4 ml-2"
+//                                 fill="none"
+//                                 stroke="currentColor"
+//                                 viewBox="0 0 24 24"
+//                               >
+//                                 <path
+//                                   strokeLinecap="round"
+//                                   strokeLinejoin="round"
+//                                   strokeWidth={2}
+//                                   d="M14 5l7 7m0 0l-7 7m7-7H3"
+//                                 />
+//                               </svg>
+//                             </Button>
+//                           </Link>
+//                         </CardContent>
+//                       </Card>
+//                     </motion.div>
+//                   ))}
+//                 </div>
+//               </>
+//             )}
+//           </motion.div>
+//         )}
+
+//         {/* Footer Links */}
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           transition={{ delay: 0.8 }}
+//           className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-16 pt-8 border-t border-gray-200"
+//         >
+//           <Link href="/about">
+//             <Button
+//               variant="ghost"
+//               size="lg"
+//               className="text-gray-600 hover:text-gray-800"
+//             >
+//               📖 About Us
+//             </Button>
+//           </Link>
+//           <Link href="/contact">
+//             <Button
+//               variant="ghost"
+//               size="lg"
+//               className="text-gray-600 hover:text-gray-800"
+//             >
+//               📩 Contact Us
+//             </Button>
+//           </Link>
+//         </motion.div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+//
+
+
+
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -530,8 +1027,15 @@ export default function HomePage() {
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -540,8 +1044,8 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-3">
             {lastUpdated && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-800/50 backdrop-blur-sm rounded-full px-4 py-2 border border-gray-700">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <Clock className="w-4 h-4" />
                 <span>
                   Updated: {new Date(lastUpdated).toLocaleTimeString()}
@@ -555,7 +1059,7 @@ export default function HomePage() {
               disabled={isLoading}
               variant="outline"
               size="sm"
-              className="flex items-center gap-2 bg-transparent"
+              className="flex items-center gap-2 bg-gray-800/50 border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500 backdrop-blur-sm"
             >
               <RefreshCw
                 className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
@@ -567,11 +1071,11 @@ export default function HomePage() {
               onValueChange={(value) => setRefreshInterval(Number(value))}
               disabled={isLoading}
             >
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 bg-gray-800/50 border-gray-600 text-gray-300 backdrop-blur-sm">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="3600000">60m refresh</SelectItem>
+              <SelectContent className="bg-gray-800 border-gray-600">
+                <SelectItem value="3600000" className="text-gray-300 hover:bg-gray-700">60m refresh</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -585,26 +1089,31 @@ export default function HomePage() {
           className="text-center mb-12"
         >
           <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
-                <Heart className="w-10 h-10 text-white" fill="currentColor" />
+            <motion.div
+              className="relative"
+              whileHover={{ scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-2xl shadow-red-500/30 ring-4 ring-red-500/20">
+                <Heart className="w-12 h-12 text-white" fill="currentColor" />
               </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                <Users className="w-3 h-3 text-white" />
+              <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <Users className="w-4 h-4 text-white" />
               </div>
-            </div>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-500 to-red-600 blur-xl opacity-30 animate-pulse"></div>
+            </motion.div>
           </div>
-          <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
-            Red<span className="text-red-600">Net</span>
+          <h1 className="text-6xl lg:text-7xl font-bold text-white mb-4 bg-gradient-to-r from-white via-red-100 to-white bg-clip-text text-transparent">
+            Red<span className="text-red-400">Net</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-2 font-medium">
+          <p className="text-2xl text-gray-300 mb-2 font-medium">
             Blood Network System
           </p>
-          <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Connecting blood donors, recipients, and banks for a life-saving
             ecosystem.
             <br />
-            <span className="text-red-600 font-semibold">
+            <span className="text-red-400 font-semibold bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">
               Every drop counts. Every life matters.
             </span>
           </p>
@@ -620,7 +1129,7 @@ export default function HomePage() {
           <Link href="/request-blood-bank">
             <Button
               size="lg"
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-6 text-lg shadow-xl shadow-red-500/25 border-0 backdrop-blur-sm"
             >
               <Building2 className="w-5 h-5 mr-2" />
               Add Blood Bank
@@ -630,7 +1139,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-purple-200 text-purple-700 hover:bg-purple-50 px-8 py-6 text-lg bg-transparent"
+              className="border-purple-500/50 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 px-8 py-6 text-lg backdrop-blur-sm shadow-lg shadow-purple-500/10"
             >
               <Users className="w-5 h-5 mr-2" />
               Super Admin
@@ -640,7 +1149,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-6 text-lg bg-transparent"
+              className="border-blue-500/50 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400 px-8 py-6 text-lg backdrop-blur-sm shadow-lg shadow-blue-500/10"
             >
               <Heart className="w-5 h-5 mr-2" />
               Bank Admin
@@ -655,10 +1164,10 @@ export default function HomePage() {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="mb-8"
         >
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <Card className="shadow-2xl border-0 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50">
             <CardHeader className="pb-4">
-              <CardTitle className="text-center text-gray-800 flex items-center justify-center gap-2">
-                <Search className="w-5 h-5" />
+              <CardTitle className="text-center text-white flex items-center justify-center gap-2">
+                <Search className="w-5 h-5 text-red-400" />
                 Find Blood Banks
               </CardTitle>
             </CardHeader>
@@ -670,26 +1179,26 @@ export default function HomePage() {
                   placeholder="Search blood banks by name..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 py-6 text-lg border-gray-200 focus:border-red-300 focus:ring-red-200"
+                  className="pl-10 py-6 text-lg bg-gray-900/50 border-gray-600 text-white placeholder-gray-400 focus:border-red-400 focus:ring-red-400/50 backdrop-blur-sm"
                 />
               </div>
 
               <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-gray-700 font-medium">
+                  <span className="text-gray-300 font-medium">
                     Filter by blood type:
                   </span>
                   <Select
                     value={bloodGroupFilter}
                     onValueChange={setBloodGroupFilter}
                   >
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-40 bg-gray-900/50 border-gray-600 text-white">
                       <SelectValue placeholder="All Types" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="A+">All Types</SelectItem>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="A+" className="text-gray-300 hover:bg-gray-700">All Types</SelectItem>
                       {bloodGroups.map((group) => (
-                        <SelectItem key={group} value={group}>
+                        <SelectItem key={group} value={group} className="text-gray-300 hover:bg-gray-700">
                           {group}
                         </SelectItem>
                       ))}
@@ -712,8 +1221,8 @@ export default function HomePage() {
                       }
                       className={
                         bloodGroupFilter === group
-                          ? "bg-red-600 hover:bg-red-700 text-white"
-                          : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                          ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+                          : "border-gray-600 bg-gray-800/30 text-gray-300 hover:bg-gray-700 hover:border-gray-500"
                       }
                     >
                       {group}
@@ -732,9 +1241,9 @@ export default function HomePage() {
             animate={{ opacity: 1, scale: 1 }}
             className="mb-8"
           >
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-red-500/50 bg-red-500/10 backdrop-blur-sm">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-center text-red-700">
+                <div className="flex items-center justify-center text-red-400">
                   <AlertCircle className="w-5 h-5 mr-2" />
                   <span className="font-medium">Error: </span>
                   <span className="ml-1">{error}</span>
@@ -747,8 +1256,8 @@ export default function HomePage() {
         {/* Blood Banks Grid */}
         {isLoading ? (
           <div className="flex flex-col justify-center items-center py-20">
-            <div className="w-16 h-16 border-4 border-red-200 border-t-red-600 rounded-full animate-spin mb-4" />
-            <p className="text-gray-600 text-lg">Loading blood banks...</p>
+            <div className="w-16 h-16 border-4 border-gray-700 border-t-red-500 rounded-full animate-spin mb-4" />
+            <p className="text-gray-400 text-lg">Loading blood banks...</p>
           </div>
         ) : (
           <motion.div
@@ -757,15 +1266,15 @@ export default function HomePage() {
             transition={{ delay: 0.6, duration: 0.6 }}
           >
             {filteredBanks.length === 0 ? (
-              <Card className="text-center py-16 bg-gray-50">
+              <Card className="text-center py-16 bg-gray-800/30 border-gray-700/50 backdrop-blur-sm">
                 <CardContent className="pt-6">
-                  <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+                  <Building2 className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                  <h3 className="text-2xl font-semibold text-gray-300 mb-2">
                     {search || bloodGroupFilter
                       ? "No matching blood banks found"
                       : "No blood banks available yet"}
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-gray-400">
                     {search || bloodGroupFilter
                       ? "Try adjusting your search criteria"
                       : "Be the first to add a blood bank to the network"}
@@ -775,7 +1284,7 @@ export default function HomePage() {
             ) : (
               <>
                 <div className="text-center mb-8">
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                  <Badge variant="secondary" className="text-lg px-4 py-2 bg-gray-700/50 text-gray-300 border-gray-600 backdrop-blur-sm">
                     Found {filteredBanks.length} blood bank
                     {filteredBanks.length !== 1 ? "s" : ""}
                   </Badge>
@@ -787,28 +1296,28 @@ export default function HomePage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 + index * 0.05 }}
-                      whileHover={{ y: -4 }}
+                      whileHover={{ y: -8, scale: 1.02 }}
                       className="h-full"
                     >
-                      <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 border-0 bg-white">
+                      <Card className="h-full shadow-2xl hover:shadow-red-500/10 transition-all duration-500 border-0 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 group">
                         <CardHeader className="pb-4">
                           <div className="flex items-start justify-between">
-                            <CardTitle className="text-xl text-gray-800 leading-tight">
+                            <CardTitle className="text-xl text-white leading-tight group-hover:text-red-300 transition-colors">
                               {bank.name}
                             </CardTitle>
-                            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse flex-shrink-0 mt-1" />
+                            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse flex-shrink-0 mt-1 shadow-lg shadow-green-400/50" />
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <div className="space-y-3 text-gray-600">
+                          <div className="space-y-3 text-gray-400">
                             <div className="flex items-start gap-3">
-                              <MapPin className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                              <MapPin className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                               <span className="text-sm leading-relaxed">
                                 {bank.address || "Address not provided"}
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <Phone className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                              <Phone className="w-5 h-5 text-blue-400 flex-shrink-0" />
                               <span className="text-sm">
                                 {bank.phone || "Phone not provided"}
                               </span>
@@ -818,11 +1327,11 @@ export default function HomePage() {
                           {bank.blood_groups &&
                             bank.blood_groups.length > 0 && (
                               <>
-                                <Separator />
+                                <Separator className="bg-gray-700/50" />
                                 <div>
                                   <div className="flex items-center gap-2 mb-3">
-                                    <Heart className="w-4 h-4 text-red-500" />
-                                    <span className="text-sm font-medium text-gray-700">
+                                    <Heart className="w-4 h-4 text-red-400" />
+                                    <span className="text-sm font-medium text-gray-300">
                                       Available Blood Types
                                     </span>
                                   </div>
@@ -832,17 +1341,17 @@ export default function HomePage() {
                                         key={group.type}
                                         variant={
                                           bloodGroupFilter &&
-                                          group.type.toLowerCase() ===
+                                            group.type.toLowerCase() ===
                                             bloodGroupFilter.toLowerCase()
                                             ? "default"
                                             : "secondary"
                                         }
                                         className={
                                           bloodGroupFilter &&
-                                          group.type.toLowerCase() ===
+                                            group.type.toLowerCase() ===
                                             bloodGroupFilter.toLowerCase()
-                                            ? "bg-red-600 hover:bg-red-700"
-                                            : "bg-red-100 text-red-700 hover:bg-red-200"
+                                            ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0"
+                                            : "bg-red-500/20 text-red-300 hover:bg-red-500/30 border-red-500/50"
                                         }
                                       >
                                         {group.type}
@@ -853,15 +1362,15 @@ export default function HomePage() {
                               </>
                             )}
 
-                          <Separator />
+                          <Separator className="bg-gray-700/50" />
                           <Link
                             href={`/blood-banks/${bank.slug}`}
                             className="block"
                           >
-                            <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                            <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/25 border-0 transition-all duration-300 group-hover:shadow-red-500/40">
                               View Details
                               <svg
-                                className="w-4 h-4 ml-2"
+                                className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -890,13 +1399,13 @@ export default function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-16 pt-8 border-t border-gray-200"
+          className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-16 pt-8 border-t border-gray-700/50"
         >
           <Link href="/about">
             <Button
               variant="ghost"
               size="lg"
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-400 hover:text-white hover:bg-gray-800/50"
             >
               📖 About Us
             </Button>
@@ -905,7 +1414,7 @@ export default function HomePage() {
             <Button
               variant="ghost"
               size="lg"
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-400 hover:text-white hover:bg-gray-800/50"
             >
               📩 Contact Us
             </Button>
