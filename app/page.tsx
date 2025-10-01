@@ -1424,11 +1424,8 @@
 //     </div>
 //   );
 // }
-
-
-
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- SHADCN UI & LUCIDE ICONS (MOCKED FOR SINGLE FILE) ---
@@ -1549,10 +1546,10 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState(3600000); // Default 60 mins
+  const refreshInterval = 3600000; // Default 60 mins
 
-  const fetchBloodBanks = async () => {
-    if (!isLoading) setIsLoading(true);
+  const fetchBloodBanks = useCallback(async () => {
+    setIsLoading(true);
     setError(null);
     try {
       const res = await fetch(`/api/rednet/blood-banks?t=${Date.now()}`);
@@ -1576,17 +1573,16 @@ export default function HomePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    setIsLoading(true);
     fetchBloodBanks();
-  }, []);
+  }, [fetchBloodBanks]);
 
   useEffect(() => {
     const interval = setInterval(fetchBloodBanks, refreshInterval);
     return () => clearInterval(interval);
-  }, [refreshInterval]);
+  }, [refreshInterval, fetchBloodBanks]);
 
   const filteredBanks = useMemo(() =>
     bloodBanks.filter((bank) => {
@@ -1605,7 +1601,7 @@ export default function HomePage() {
       {/* Background Grid and Glows */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(12,14,33,0.9),rgba(12,14,33,1))]"></div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwy5NSwwLjA1KSI+PHBhdGggZD0iTTAgLjUgMzIgLjUgTS41IDAgLjUgMzIiLz48L3N2Zz4=')]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyOTNSwwLjA1KSI+PHBhdGggZD0iTTAgLjUgMzIgLjUgTS41IDAgLjUgMzIiLz48L3N2Zz4=')]" />
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-900/40 rounded-full blur-3xl opacity-30 animate-pulse"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-rose-900/40 rounded-full blur-3xl opacity-30 animate-pulse animation-delay-3000"></div>
       </div>
@@ -1842,3 +1838,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+
