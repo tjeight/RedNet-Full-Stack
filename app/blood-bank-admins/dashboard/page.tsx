@@ -143,7 +143,7 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-        router.push("/blood-bank-admins/login");
+        router.push("/");
       } else {
         console.error("Logout failed");
       }
@@ -382,9 +382,8 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-medium text-white">
                         {activity.type === "donation"
-                          ? `Donation from ${
-                              activity.donor?.full_name || activity.person_name
-                            } (${activity.blood_type})`
+                          ? `Donation from ${activity.donor?.full_name || activity.person_name
+                          } (${activity.blood_type})`
                           : `Purchase by ${activity.person_name} (${activity.blood_type})`}
                       </h3>
                       <span className="text-xs text-gray-400">

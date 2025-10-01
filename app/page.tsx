@@ -1142,10 +1142,10 @@ export default function HomePage() {
               className="border-purple-500/50 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 px-8 py-6 text-lg backdrop-blur-sm shadow-lg shadow-purple-500/10"
             >
               <Users className="w-5 h-5 mr-2" />
-              Super Admin
+              Admin Login
             </Button>
           </Link>
-          <Link href="/blood-bank-admins/login">
+          {/* <Link href="/blood-bank-admins/login">
             <Button
               size="lg"
               variant="outline"
@@ -1154,7 +1154,7 @@ export default function HomePage() {
               <Heart className="w-5 h-5 mr-2" />
               Bank Admin
             </Button>
-          </Link>
+          </Link> */}
         </motion.div>
 
         {/* Search and Filter Section */}
