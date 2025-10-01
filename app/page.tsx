@@ -1424,12 +1424,26 @@
 //     </div>
 //   );
 // }
+
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
+
+// --- TYPE DEFINITIONS for MOCKED COMPONENTS ---
+type BaseProps = {
+  className?: string;
+  children?: React.ReactNode;
+};
+
+type ButtonProps = BaseProps & React.ButtonHTMLAttributes<HTMLButtonElement>;
+type DivProps = BaseProps & React.HTMLAttributes<HTMLDivElement>;
+type HeadingProps = BaseProps & React.HTMLAttributes<HTMLHeadingElement>;
+type InputProps = { className?: string } & React.InputHTMLAttributes<HTMLInputElement>;
+
 
 // --- SHADCN UI & LUCIDE ICONS (MOCKED FOR SINGLE FILE) ---
-const Button = ({ className, children, ...props }) => (
+const Button = ({ className, children, ...props }: ButtonProps) => (
   <button
     className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${className}`}
     {...props}
@@ -1438,7 +1452,7 @@ const Button = ({ className, children, ...props }) => (
   </button>
 );
 
-const Card = ({ className, children }) => (
+const Card = ({ className, children }: DivProps) => (
   <div
     className={`rounded-xl border bg-card text-card-foreground ${className}`}
   >
@@ -1446,30 +1460,30 @@ const Card = ({ className, children }) => (
   </div>
 );
 
-const CardHeader = ({ className, children }) => (
+const CardHeader = ({ className, children }: DivProps) => (
   <div className={`flex flex-col space-y-1.5 p-6 ${className}`}>
     {children}
   </div>
 );
 
-const CardTitle = ({ className, children }) => (
+const CardTitle = ({ className, children }: HeadingProps) => (
   <h3 className={`font-semibold leading-none tracking-tight ${className}`}>
     {children}
   </h3>
 );
 
-const CardContent = ({ className, children }) => (
+const CardContent = ({ className, children }: DivProps) => (
   <div className={`p-6 pt-0 ${className}`}>{children}</div>
 );
 
-const Input = ({ className, ...props }) => (
+const Input = ({ className, ...props }: InputProps) => (
   <input
     className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     {...props}
   />
 );
 
-const Badge = ({ className, children }) => (
+const Badge = ({ className, children }: DivProps) => (
   <div
     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}
   >
@@ -1477,7 +1491,7 @@ const Badge = ({ className, children }) => (
   </div>
 );
 
-const Separator = ({ className }) => (
+const Separator = ({ className }: { className?: string }) => (
   <div className={`shrink-0 bg-border h-[1px] w-full ${className}`} />
 );
 

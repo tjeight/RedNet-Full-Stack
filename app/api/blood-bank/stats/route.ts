@@ -1,4 +1,4 @@
-// app/api/blood-bank/stats/route.ts
+// app/api/blood-bank/stats/route.t
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -170,7 +170,7 @@ export async function GET() {
         person_name:
           tx.type === "donation"
             ? (tx.donors as unknown as { full_name: string })?.full_name ||
-              tx.person_name
+            tx.person_name
             : tx.person_name,
         phone:
           tx.type === "donation"
