@@ -148,7 +148,7 @@
 "use client";
 import type React from "react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -173,7 +173,7 @@ import {
 } from "lucide-react";
 
 const AdminLogin = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const [error, setError] = useState("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState("");
