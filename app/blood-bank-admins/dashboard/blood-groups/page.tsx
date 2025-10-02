@@ -700,7 +700,7 @@
 import type React from "react";
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
-// Removed import { useRouter } from "next/navigation"; to fix compilation error
+import Link from "next/link";
 
 // --- Type Definitions ---
 type BloodGroup = {
@@ -740,7 +740,6 @@ const toDisplayDate = (isoString: string | null | undefined): string => {
 // --- Main Component ---
 
 export default function BloodGroupsPage(): React.JSX.Element {
-  // const router = useRouter(); // Removed
   const [bloodGroups, setBloodGroups] = useState<BloodGroup[]>([]);
   const [error, setError] = useState<string>("");
   const [editingGroup, setEditingGroup] = useState<EditingGroup | null>(null);
@@ -828,8 +827,8 @@ export default function BloodGroupsPage(): React.JSX.Element {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Back Button - Changed from button+router.push to <a> tag */}
-        <a
+        {/* Back Button - Changed to Link component */}
+        <Link
           href="/blood-bank-admins/dashboard"
           className="mb-6 flex items-center text-gray-400 hover:text-white transition-colors text-sm font-medium"
         >
@@ -846,7 +845,7 @@ export default function BloodGroupsPage(): React.JSX.Element {
             />
           </svg>
           Back to Dashboard
-        </a>
+        </Link>
 
         <div className="flex justify-between items-center mb-8">
           <div>
