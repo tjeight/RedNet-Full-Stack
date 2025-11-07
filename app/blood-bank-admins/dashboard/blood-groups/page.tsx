@@ -1683,10 +1683,11 @@ export default function BloodGroupsPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      onClick={() => {
                         const fakeEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
                         handleUpdate(fakeEvent);
                       }}
+
                       disabled={isUpdating}
                       className="px-6 py-2 bg-gray-900 text-white border-2 border-gray-900 rounded-lg hover:bg-black transition-all flex items-center disabled:opacity-50 font-semibold"
                     >
