@@ -1238,8 +1238,9 @@ export default function DashboardPage() {
                     cy="50%"
                     outerRadius={90}
                     label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
+                      `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
                     }
+
                   >
                     {dashboardData.bloodInventory.map((_, index) => (
                       <Cell key={index} fill={COLORS[index % COLORS.length]} />
