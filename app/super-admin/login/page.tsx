@@ -1217,7 +1217,312 @@
 //   );
 // };
 
+// // export default AdminLogin;
+// "use client";
+// import type React from "react";
+// import { useState } from "react";
+// import Link from "next/link";
+// import {
+//   ArrowLeft,
+//   Mail,
+//   Lock,
+//   Shield,
+//   AlertCircle,
+//   Eye,
+//   EyeOff,
+//   LogIn,
+// } from "lucide-react";
+
+// // --- Type Definitions for Mock Components ---
+
+// interface BaseProps {
+//   className?: string;
+//   children: React.ReactNode;
+// }
+
+// interface ComponentProps extends BaseProps {
+//   [key: string]: unknown;
+// }
+
+// interface LabelProps extends BaseProps {
+//   htmlFor: string;
+// }
+
+// interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+//   className?: string;
+// }
+
+// interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+//   className?: string;
+//   disabled?: boolean;
+// }
+
+// interface AlertProps extends BaseProps {
+//   variant: "destructive" | "default";
+// }
+
+// interface AlertDescriptionProps {
+//   children: React.ReactNode;
+// }
+
+
+// // --- Mock shadcn/ui Components for Self-Containment (Updated for Dark Mode) ---
+
+// const Card: React.FC<ComponentProps> = ({ className = "", children }) => (
+//   <div
+//     className={`bg-gray-900 shadow-2xl shadow-gray-950/50 border border-gray-700 rounded-xl overflow-hidden ${className}`}
+//   >
+//     {children}
+//   </div>
+// );
+
+// const CardHeader: React.FC<BaseProps> = ({ className = "", children }) => (
+//   <div className={`flex flex-col space-y-1.5 p-6 ${className}`}>
+//     {children}
+//   </div>
+// );
+
+// const CardTitle: React.FC<BaseProps> = ({ className = "", children }) => (
+//   <h2 className={`text-3xl font-extrabold leading-none tracking-tight text-white ${className}`}>
+//     {children}
+//   </h2>
+// );
+
+// const CardDescription: React.FC<BaseProps> = ({ className = "", children }) => (
+//   <p className={`text-sm text-gray-400 ${className}`}>
+//     {children}
+//   </p>
+// );
+
+// const CardContent: React.FC<ComponentProps> = ({ className = "", children }) => (
+//   <div className={`p-6 pt-0 ${className}`}>{children}</div>
+// );
+
+// const Label: React.FC<LabelProps> = ({ className = "", htmlFor, children }) => (
+//   <label
+//     htmlFor={htmlFor}
+//     className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-300 ${className}`}
+//   >
+//     {children}
+//   </label>
+// );
+
+// const Input: React.FC<InputProps> = ({ className = "", type = "text", ...props }) => (
+//   <input
+//     type={type}
+//     // Dark input background, white text, light border, subtle focus ring
+//     className={`flex h-12 w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white ring-offset-gray-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-150 ${className}`}
+//     {...props}
+//   />
+// );
+
+// const Button: React.FC<ButtonProps> = ({ className = "", children, disabled, ...props }) => (
+//   <button
+//     // High-contrast light button on a dark card
+//     className={`inline-flex items-center justify-center rounded-lg text-sm font-semibold h-12 px-6 py-3 transition-colors disabled:pointer-events-none disabled:opacity-60 bg-gray-200 text-gray-950 hover:bg-white active:bg-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 shadow-xl ${className}`}
+//     disabled={disabled}
+//     {...props}
+//   >
+//     {children}
+//   </button>
+// );
+
+// const Alert: React.FC<AlertProps> = ({ className = "", variant, children }) => {
+//   const baseClasses = "relative w-full rounded-lg border p-4 [&>svg]:absolute [&>svg]:text-foreground [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7";
+//   // Dark mode destructive alert: dark red background with light red text
+//   const variantClasses = variant === "destructive"
+//     ? "bg-red-900/40 border-red-700 text-red-300"
+//     : "bg-gray-700 border-gray-600 text-gray-300";
+//   return <div className={`${baseClasses} ${variantClasses} ${className}`}>{children}</div>;
+// };
+
+// const AlertDescription: React.FC<AlertDescriptionProps> = ({ children }) => (
+//   <div className="text-sm [&_p]:leading-relaxed">{children}</div>
+// );
+
+// // --- Main AdminLogin Component ---
+
+// const AdminLogin: React.FC = () => {
+//   const [error, setError] = useState<string>("");
+//   const [email, setEmail] = useState<string>("");
+//   const [password, setPassword] = useState<string>("");
+//   const [showPassword, setShowPassword] = useState<boolean>(false);
+//   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError("");
+//     setIsLoading(true);
+
+//     try {
+//       const res = await fetch("/api/auth/admin-login", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ email, password }),
+//       });
+
+//       const data = await res.json();
+
+//       if (!res.ok) {
+//         setError(data.error || "Login failed. Please check your credentials.");
+//         return;
+//       }
+
+//       // Role-based redirection (using window.location.href as before)
+//       if (data.role === "super_admin") {
+//         console.log("Redirecting to: /super-admin/dashboard");
+//         window.location.href = "/super-admin/dashboard";
+//       } else if (data.role === "blood_bank_admin") {
+//         console.log("Redirecting to: /blood-bank-admins/dashboard");
+//         window.location.href = "/blood-bank-admins/dashboard";
+//       } else {
+//         setError("Unknown user role. Please contact system administrator.");
+//       }
+//     } catch (err: unknown) {
+//       console.error(err);
+//       setError("A network error occurred. Please try again.");
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   return (
+//     // Dark background with a subtle radial gradient for premium texture effect
+//     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4 font-sans antialiased"
+//       style={{ backgroundImage: 'radial-gradient(at 50% 10%, #1e293b, #030712)', backgroundAttachment: 'fixed' }}>
+//       <div className="w-full max-w-md">
+//         {/* Back Button - Changed to Link component */}
+//         <div className="mb-8">
+//           <Link
+//             href="/"
+//             className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors"
+//           >
+//             <ArrowLeft className="w-4 h-4 mr-2" />
+//             Back to Home
+//           </Link>
+//         </div>
+
+//         <Card>
+//           <CardHeader className="text-center space-y-4 pb-8">
+//             {/* High-contrast icon container */}
+//             <div className="mx-auto w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow-xl">
+//               <Shield className="w-8 h-8 text-gray-950" />
+//             </div>
+//             <div>
+//               <CardTitle>
+//                 Admin Portal
+//               </CardTitle>
+//               <CardDescription>
+//                 Sign in to manage organizational resources.
+//               </CardDescription>
+//             </div>
+//           </CardHeader>
+
+//           <CardContent className="space-y-6">
+//             {error && (
+//               <Alert variant="destructive">
+//                 <AlertCircle className="h-4 w-4 text-red-500" /> {/* Red icon for destructive alert */}
+//                 <AlertDescription>{error}</AlertDescription>
+//               </Alert>
+//             )}
+
+//             <form onSubmit={handleSubmit} className="space-y-6">
+//               <div className="space-y-2">
+//                 <Label htmlFor="email">
+//                   Email Address
+//                 </Label>
+//                 <div className="relative">
+//                   <Mail className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
+//                   <Input
+//                     id="email"
+//                     type="email"
+//                     value={email}
+//                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+//                     placeholder="Enter email address"
+//                     className="pl-10 h-11"
+//                     required
+//                   />
+//                 </div>
+//               </div>
+
+//               <div className="space-y-2">
+//                 <Label htmlFor="password">
+//                   Password
+//                 </Label>
+//                 <div className="relative">
+//                   <Lock className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
+//                   <Input
+//                     id="password"
+//                     type={showPassword ? "text" : "password"}
+//                     value={password}
+//                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+//                     placeholder="Enter your password"
+//                     className="pl-10 pr-10 h-11"
+//                     required
+//                   />
+//                   <button
+//                     type="button"
+//                     onClick={() => setShowPassword(!showPassword)}
+//                     // Icon color for dark mode
+//                     className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-300 transition-colors"
+//                     aria-label={showPassword ? "Hide password" : "Show password"}
+//                   >
+//                     {showPassword ? (
+//                       <EyeOff className="h-4 w-4" />
+//                     ) : (
+//                       <Eye className="h-4 w-4" />
+//                     )}
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <Button
+//                 type="submit"
+//                 disabled={isLoading}
+//                 className="w-full"
+//               >
+//                 {isLoading ? (
+//                   <div className="flex items-center space-x-2">
+//                     {/* Dark spinner color for contrast on light button */}
+//                     <div className="w-4 h-4 border-2 border-gray-950/30 border-t-gray-950 rounded-full animate-spin" />
+//                     <span>Authenticating...</span>
+//                   </div>
+//                 ) : (
+//                   <div className="flex items-center space-x-2">
+//                     <LogIn className="w-4 h-4" />
+//                     <span>Sign In</span>
+//                   </div>
+//                 )}
+//               </Button>
+//             </form>
+
+//             <div className="text-center">
+//               <Link
+//                 href="/admin/forgot-password"
+//                 // Link color for dark mode
+//                 className="text-sm font-medium text-gray-400 hover:text-white underline transition-colors"
+//               >
+//                 Forgot your password?
+//               </Link>
+//             </div>
+//           </CardContent>
+//         </Card>
+
+//         <div className="mt-8 text-center text-xs text-gray-600">
+//           <p>Secure administrative access maintained by our system.</p>
+//           <p className="mt-1">
+//             <Link href="/terms" className="hover:text-gray-400 underline transition-colors">Terms of Service</Link> &bull; <Link href="/privacy" className="hover:text-gray-400 underline transition-colors">Privacy Policy</Link>
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
 // export default AdminLogin;
+
+
+
 "use client";
 import type React from "react";
 import { useState } from "react";
@@ -1233,40 +1538,33 @@ import {
   LogIn,
 } from "lucide-react";
 
-// --- Type Definitions for Mock Components ---
+// --- Type Definitions ---
 
 interface BaseProps {
   className?: string;
   children: React.ReactNode;
 }
-
 interface ComponentProps extends BaseProps {
   [key: string]: unknown;
 }
-
 interface LabelProps extends BaseProps {
   htmlFor: string;
 }
-
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
 }
-
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   disabled?: boolean;
 }
-
 interface AlertProps extends BaseProps {
   variant: "destructive" | "default";
 }
-
 interface AlertDescriptionProps {
   children: React.ReactNode;
 }
 
-
-// --- Mock shadcn/ui Components for Self-Containment (Updated for Dark Mode) ---
+// --- Mock Components ---
 
 const Card: React.FC<ComponentProps> = ({ className = "", children }) => (
   <div
@@ -1277,9 +1575,7 @@ const Card: React.FC<ComponentProps> = ({ className = "", children }) => (
 );
 
 const CardHeader: React.FC<BaseProps> = ({ className = "", children }) => (
-  <div className={`flex flex-col space-y-1.5 p-6 ${className}`}>
-    {children}
-  </div>
+  <div className={`flex flex-col space-y-1.5 p-6 ${className}`}>{children}</div>
 );
 
 const CardTitle: React.FC<BaseProps> = ({ className = "", children }) => (
@@ -1301,7 +1597,7 @@ const CardContent: React.FC<ComponentProps> = ({ className = "", children }) => 
 const Label: React.FC<LabelProps> = ({ className = "", htmlFor, children }) => (
   <label
     htmlFor={htmlFor}
-    className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-300 ${className}`}
+    className={`text-sm font-medium text-gray-300 ${className}`}
   >
     {children}
   </label>
@@ -1310,16 +1606,14 @@ const Label: React.FC<LabelProps> = ({ className = "", htmlFor, children }) => (
 const Input: React.FC<InputProps> = ({ className = "", type = "text", ...props }) => (
   <input
     type={type}
-    // Dark input background, white text, light border, subtle focus ring
-    className={`flex h-12 w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white ring-offset-gray-900 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-150 ${className}`}
+    className={`flex h-12 w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-gray-300 ${className}`}
     {...props}
   />
 );
 
 const Button: React.FC<ButtonProps> = ({ className = "", children, disabled, ...props }) => (
   <button
-    // High-contrast light button on a dark card
-    className={`inline-flex items-center justify-center rounded-lg text-sm font-semibold h-12 px-6 py-3 transition-colors disabled:pointer-events-none disabled:opacity-60 bg-gray-200 text-gray-950 hover:bg-white active:bg-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 shadow-xl ${className}`}
+    className={`inline-flex items-center justify-center rounded-lg text-sm font-semibold h-12 px-6 transition-colors bg-gray-200 text-gray-950 shadow-xl disabled:opacity-60 ${className}`}
     disabled={disabled}
     {...props}
   >
@@ -1328,31 +1622,77 @@ const Button: React.FC<ButtonProps> = ({ className = "", children, disabled, ...
 );
 
 const Alert: React.FC<AlertProps> = ({ className = "", variant, children }) => {
-  const baseClasses = "relative w-full rounded-lg border p-4 [&>svg]:absolute [&>svg]:text-foreground [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7";
-  // Dark mode destructive alert: dark red background with light red text
-  const variantClasses = variant === "destructive"
-    ? "bg-red-900/40 border-red-700 text-red-300"
-    : "bg-gray-700 border-gray-600 text-gray-300";
-  return <div className={`${baseClasses} ${variantClasses} ${className}`}>{children}</div>;
+  const style =
+    variant === "destructive"
+      ? "bg-red-900/40 border-red-700 text-red-300"
+      : "bg-gray-700 border-gray-600 text-gray-300";
+  return (
+    <div className={`relative w-full rounded-lg border p-4 ${style} ${className}`}>
+      {children}
+    </div>
+  );
 };
 
 const AlertDescription: React.FC<AlertDescriptionProps> = ({ children }) => (
-  <div className="text-sm [&_p]:leading-relaxed">{children}</div>
+  <div className="text-sm">{children}</div>
 );
 
-// --- Main AdminLogin Component ---
+// --- MAIN COMPONENT ---
 
 const AdminLogin: React.FC = () => {
   const [error, setError] = useState<string>("");
+  const [validationError, setValidationError] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // --- HANDLE SUBMIT ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setValidationError("");
     setIsLoading(true);
+
+    // VALIDATION ------------------------------
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setValidationError("Please enter a valid email address.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setValidationError("Password must be at least 8 characters long.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setValidationError("Password must include at least one uppercase letter.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      setValidationError("Password must include at least one lowercase letter.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      setValidationError("Password must include at least one number.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setValidationError("Password must include at least one special character.");
+      setIsLoading(false);
+      return;
+    }
+    // END VALIDATION --------------------------
 
     try {
       const res = await fetch("/api/auth/admin-login", {
@@ -1368,17 +1708,14 @@ const AdminLogin: React.FC = () => {
         return;
       }
 
-      // Role-based redirection (using window.location.href as before)
       if (data.role === "super_admin") {
-        console.log("Redirecting to: /super-admin/dashboard");
         window.location.href = "/super-admin/dashboard";
       } else if (data.role === "blood_bank_admin") {
-        console.log("Redirecting to: /blood-bank-admins/dashboard");
         window.location.href = "/blood-bank-admins/dashboard";
       } else {
         setError("Unknown user role. Please contact system administrator.");
       }
-    } catch (err: unknown) {
+    } catch (err) {
       console.error(err);
       setError("A network error occurred. Please try again.");
     } finally {
@@ -1386,16 +1723,20 @@ const AdminLogin: React.FC = () => {
     }
   };
 
+  // --- RETURN UI (UNCHANGED) ---
   return (
-    // Dark background with a subtle radial gradient for premium texture effect
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4 font-sans antialiased"
-      style={{ backgroundImage: 'radial-gradient(at 50% 10%, #1e293b, #030712)', backgroundAttachment: 'fixed' }}>
+    <div
+      className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4"
+      style={{
+        backgroundImage: "radial-gradient(at 50% 10%, #1e293b, #030712)",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <div className="w-full max-w-md">
-        {/* Back Button - Changed to Link component */}
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors"
+            className="inline-flex items-center text-sm text-gray-400 hover:text-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
@@ -1404,40 +1745,41 @@ const AdminLogin: React.FC = () => {
 
         <Card>
           <CardHeader className="text-center space-y-4 pb-8">
-            {/* High-contrast icon container */}
             <div className="mx-auto w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow-xl">
               <Shield className="w-8 h-8 text-gray-950" />
             </div>
             <div>
-              <CardTitle>
-                Admin Portal
-              </CardTitle>
-              <CardDescription>
-                Sign in to manage organizational resources.
-              </CardDescription>
+              <CardTitle>Admin Portal</CardTitle>
+              <CardDescription>Sign in to manage organizational resources.</CardDescription>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
+            {validationError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4 text-red-400" />
+                <AlertDescription>{validationError}</AlertDescription>
+              </Alert>
+            )}
+
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4 text-red-500" /> {/* Red icon for destructive alert */}
+                <AlertCircle className="h-4 w-4 text-red-400" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email">
-                  Email Address
-                </Label>
+                <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
                   <Input
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter email address"
                     className="pl-10 h-11"
                     required
@@ -1445,17 +1787,16 @@ const AdminLogin: React.FC = () => {
                 </div>
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password">
-                  Password
-                </Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     className="pl-10 pr-10 h-11"
                     required
@@ -1463,27 +1804,17 @@ const AdminLogin: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    // Icon color for dark mode
-                    className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-300 transition-colors"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-300"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full"
-              >
+              {/* Submit */}
+              <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
-                    {/* Dark spinner color for contrast on light button */}
                     <div className="w-4 h-4 border-2 border-gray-950/30 border-t-gray-950 rounded-full animate-spin" />
                     <span>Authenticating...</span>
                   </div>
@@ -1497,11 +1828,7 @@ const AdminLogin: React.FC = () => {
             </form>
 
             <div className="text-center">
-              <Link
-                href="/admin/forgot-password"
-                // Link color for dark mode
-                className="text-sm font-medium text-gray-400 hover:text-white underline transition-colors"
-              >
+              <Link href="/admin/forgot-password" className="text-sm text-gray-400 hover:text-white underline">
                 Forgot your password?
               </Link>
             </div>
@@ -1511,7 +1838,9 @@ const AdminLogin: React.FC = () => {
         <div className="mt-8 text-center text-xs text-gray-600">
           <p>Secure administrative access maintained by our system.</p>
           <p className="mt-1">
-            <Link href="/terms" className="hover:text-gray-400 underline transition-colors">Terms of Service</Link> &bull; <Link href="/privacy" className="hover:text-gray-400 underline transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-gray-400 underline">Terms of Service</Link>{" "}
+            &bull;{" "}
+            <Link href="/privacy" className="hover:text-gray-400 underline">Privacy Policy</Link>
           </p>
         </div>
       </div>

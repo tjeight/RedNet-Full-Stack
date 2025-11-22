@@ -1597,16 +1597,32 @@ export default function HomePage() {
     const interval = setInterval(fetchBloodBanks, refreshInterval);
     return () => clearInterval(interval);
   }, [refreshInterval, fetchBloodBanks]);
+  const filteredBanks = useMemo(() => {
+    return bloodBanks.filter((bank) => {
 
-  const filteredBanks = useMemo(() =>
-    bloodBanks.filter((bank) => {
-      const matchesName = bank.name.toLowerCase().includes(search.toLowerCase());
-      const matchesBloodGroup = !bloodGroupFilter ||
-        bank.blood_groups?.some(g => g.type.toLowerCase() === bloodGroupFilter.toLowerCase());
+      const matchesName = bank.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+
+      // Normalize all blood types (lowercase and trimmed)
+      const types = bank.blood_groups?.map(
+        (g) => g.type.trim().toLowerCase()
+      ) || [];
+
+      // If filter is empty → just match name
+      if (!bloodGroupFilter) {
+        return matchesName;
+      }
+
+      // Case-insensitive filter match
+      const matchesBloodGroup =
+        types.includes(bloodGroupFilter.toLowerCase());
+
       return matchesName && matchesBloodGroup;
-    }),
-    [bloodBanks, search, bloodGroupFilter]
-  );
+    });
+  }, [bloodBanks, search, bloodGroupFilter]);
+
+
 
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
