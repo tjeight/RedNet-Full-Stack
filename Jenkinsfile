@@ -2,7 +2,7 @@ pipeline {
     agent any
 
 environment {
-    SSH_CREDENTIALS = 'ubuntu'         // use the credential id you added in Jenkins
+    SSH_CREDENTIALS = 'aws-ssh-key'         // use the credential id you added in Jenkins
     DEPLOY_USER = "ubuntu"
     DEPLOY_HOST = "http://100.27.254.8/" // replace with actual public IP (or use Jenkins credential/param)
     APP_DIR = "/home/ubuntu/rednet-app"
