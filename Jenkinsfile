@@ -4,7 +4,7 @@ pipeline {
 environment {
     SSH_CREDENTIALS = 'aws-ssh-key'         // use the credential id you added in Jenkins
     DEPLOY_USER = "ubuntu"
-    DEPLOY_HOST = "http://100.27.254.8/" // replace with actual public IP (or use Jenkins credential/param)
+    DEPLOY_HOST = "100.27.254.8" // replace with actual public IP (or use Jenkins credential/param)
     APP_DIR = "/home/ubuntu/rednet-app"
     CONTAINER_NAME = "rednet_nextjs"
     ENV_PATH = "/home/ubuntu/rednet-app/.env.production"
