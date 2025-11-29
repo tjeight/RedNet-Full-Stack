@@ -60,7 +60,7 @@ spec:
     environment {
         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
         IMAGE    = "2401069/rednet"
-        VERSION  = "v1"
+        VERSION  = "v${BUILD_NUMBER}"
     }
 
     stages {
