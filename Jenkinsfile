@@ -398,6 +398,166 @@
 // }
 
 
+// pipeline {
+//     agent {
+//         kubernetes {
+//             yaml '''
+// apiVersion: v1
+// kind: Pod
+// spec:
+//   containers:
+
+//   - name: node
+//     image: node:18
+//     command: ["cat"]
+//     tty: true
+
+//   - name: sonar-scanner
+//     image: sonarsource/sonar-scanner-cli
+//     command: ["cat"]
+//     tty: true
+
+//   - name: kubectl
+//     image: bitnami/kubectl:latest
+//     command: ["cat"]
+//     tty: true
+//     securityContext:
+//       runAsUser: 0
+//       readOnlyRootFilesystem: false
+//     env:
+//       - name: KUBECONFIG
+//         value: /kube/config
+//     volumeMounts:
+//       - name: kubeconfig-secret
+//         mountPath: /kube/config
+//         subPath: kubeconfig
+
+//   - name: dind
+//     image: docker:24.0-dind
+//     securityContext:
+//       privileged: true
+//     args:
+//       - "--storage-driver=overlay2"
+//       - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+//       - "--insecure-registry=10.43.21.172:8085"
+//     env:
+//       - name: DOCKER_TLS_CERTDIR
+//         value: ""
+//     volumeMounts:
+//       - name: docker-storage
+//         mountPath: /var/lib/docker
+
+//   volumes:
+//     - name: kubeconfig-secret
+//       secret:
+//         secretName: kubeconfig-secret
+
+//     - name: docker-storage
+//       emptyDir: {}
+// '''
+//         }
+//     }
+
+//     environment {
+//         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+//         IMAGE    = "2401069/rednet"
+//         VERSION  = "v${BUILD_NUMBER}"
+//         // Use external IP that nodes can reach
+//         EXTERNAL_REGISTRY = "192.168.20.250:8085"
+//     }
+
+//     stages {
+
+//         /* ------------------------- DOCKER BUILD --------------------------- */
+//         stage('Build Docker Image') {
+//             steps {
+//                 container('dind') {
+//                     sh '''
+//                         echo "Waiting for Docker daemon..."
+//                         timeout 30 sh -c 'until docker info > /dev/null 2>&1; do sleep 2; done'
+
+//                         echo "Building Docker image..."
+//                         docker build -t $IMAGE:$VERSION .
+//                     '''
+//                 }
+//             }
+//         }
+
+//         /* ------------------------- SONARQUBE ------------------------------ */
+//         stage('SonarQube Analysis') {
+//             steps {
+//                 container('sonar-scanner') {
+//                     sh '''
+//                         sonar-scanner \
+//                           -Dsonar.projectKey=2401069_rednet \
+//                           -Dsonar.sources=. \
+//                           -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
+//                           -Dsonar.login=sqp_23bc67fb7f5ada4327208dd40e2f16bea7840893
+//                     '''
+//                 }
+//             }
+//         }
+
+//         /* ---------------------- DOCKER LOGIN & PUSH ----------------------- */
+//         stage('Push to Nexus') {
+//             steps {
+//                 container('dind') {
+//                     sh '''
+//                         echo "Logging into Nexus..."
+//                         docker login $REGISTRY -u admin -p Changeme@2025
+
+//                         echo "Tagging image for internal registry..."
+//                         docker tag $IMAGE:$VERSION $REGISTRY/$IMAGE:$VERSION
+                        
+//                         echo "Tagging image for external registry..."
+//                         docker tag $IMAGE:$VERSION $EXTERNAL_REGISTRY/$IMAGE:$VERSION
+
+//                         echo "Pushing to Nexus..."
+//                         docker push $REGISTRY/$IMAGE:$VERSION
+                        
+//                         echo "Logging into external registry..."
+//                         docker login $EXTERNAL_REGISTRY -u admin -p Changeme@2025
+                        
+//                         echo "Pushing to external registry..."
+//                         docker push $EXTERNAL_REGISTRY/$IMAGE:$VERSION
+//                     '''
+//                 }
+//             }
+//         }
+
+//         /* ---------------------- DEPLOY TO K8S ----------------------------- */
+//         stage('Deploy to Kubernetes') {
+//             steps {
+//                 container('kubectl') {
+//                     sh """
+//                         echo "Killing old pods..."
+//                         kubectl delete pod -l app=rednet -n 2401069 --force --grace-period=0 || true
+//                         sleep 5
+                        
+//                         echo "Deploying RedNet..."
+//                         export IMAGE_TAG=$VERSION
+//                         envsubst < k8s/deployment.yaml | kubectl apply -f - -n 2401069
+
+//                         echo "Waiting for pod to be ready..."
+//                         sleep 10
+                        
+//                         kubectl wait --for=condition=ready pod -l app=rednet -n 2401069 --timeout=5m || {
+//                             echo "FAILED - Pod status:"
+//                             kubectl get pods -n 2401069 -l app=rednet
+//                             kubectl describe pods -n 2401069 -l app=rednet | grep -A 20 "Events:"
+//                             exit 1
+//                         }
+                        
+//                         echo "SUCCESS!"
+//                         kubectl get pods -n 2401069 -l app=rednet
+//                     """
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
 pipeline {
     agent {
         kubernetes {
@@ -433,13 +593,12 @@ spec:
         subPath: kubeconfig
 
   - name: dind
-    image: docker:24.0-dind
+    image: docker:dind
     securityContext:
       privileged: true
     args:
-      - "--storage-driver=overlay2"
       - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
-      - "--insecure-registry=10.43.21.172:8085"
+      - "--insecure-registry=127.0.0.1:30085"
     env:
       - name: DOCKER_TLS_CERTDIR
         value: ""
@@ -451,7 +610,6 @@ spec:
     - name: kubeconfig-secret
       secret:
         secretName: kubeconfig-secret
-
     - name: docker-storage
       emptyDir: {}
 '''
@@ -462,8 +620,6 @@ spec:
         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
         IMAGE    = "2401069/rednet"
         VERSION  = "v${BUILD_NUMBER}"
-        // Use external IP that nodes can reach
-        EXTERNAL_REGISTRY = "192.168.20.250:8085"
     }
 
     stages {
@@ -474,10 +630,12 @@ spec:
                 container('dind') {
                     sh '''
                         echo "Waiting for Docker daemon..."
-                        timeout 30 sh -c 'until docker info > /dev/null 2>&1; do sleep 2; done'
+                        sleep 15
+                        docker version
 
                         echo "Building Docker image..."
                         docker build -t $IMAGE:$VERSION .
+                        docker image ls
                     '''
                 }
             }
@@ -499,27 +657,31 @@ spec:
         }
 
         /* ---------------------- DOCKER LOGIN & PUSH ----------------------- */
-        stage('Push to Nexus') {
+        stage('Login to Docker Registry') {
             steps {
                 container('dind') {
                     sh '''
                         echo "Logging into Nexus..."
+                        sleep 10
                         docker login $REGISTRY -u admin -p Changeme@2025
+                    '''
+                }
+            }
+        }
 
-                        echo "Tagging image for internal registry..."
+        stage('Build - Tag - Push') {
+            steps {
+                container('dind') {
+                    sh '''
+                        echo "Tagging image..."
                         docker tag $IMAGE:$VERSION $REGISTRY/$IMAGE:$VERSION
-                        
-                        echo "Tagging image for external registry..."
-                        docker tag $IMAGE:$VERSION $EXTERNAL_REGISTRY/$IMAGE:$VERSION
 
-                        echo "Pushing to Nexus..."
+                        echo "Pushing image..."
                         docker push $REGISTRY/$IMAGE:$VERSION
                         
-                        echo "Logging into external registry..."
-                        docker login $EXTERNAL_REGISTRY -u admin -p Changeme@2025
-                        
-                        echo "Pushing to external registry..."
-                        docker push $EXTERNAL_REGISTRY/$IMAGE:$VERSION
+                        echo "Verifying push..."
+                        docker pull $REGISTRY/$IMAGE:$VERSION
+                        docker image ls
                     '''
                 }
             }
@@ -530,25 +692,14 @@ spec:
             steps {
                 container('kubectl') {
                     sh """
-                        echo "Killing old pods..."
-                        kubectl delete pod -l app=rednet -n 2401069 --force --grace-period=0 || true
-                        sleep 5
-                        
-                        echo "Deploying RedNet..."
+                        echo "Applying deployment..."
                         export IMAGE_TAG=$VERSION
-                        envsubst < k8s/deployment.yaml | kubectl apply -f - -n 2401069
+                        envsubst < k8s/deployment.yaml | kubectl apply -f -
 
-                        echo "Waiting for pod to be ready..."
-                        sleep 10
+                        echo "Waiting for rollout..."
+                        kubectl rollout status deployment/rednet-deployment -n 2401069
                         
-                        kubectl wait --for=condition=ready pod -l app=rednet -n 2401069 --timeout=5m || {
-                            echo "FAILED - Pod status:"
-                            kubectl get pods -n 2401069 -l app=rednet
-                            kubectl describe pods -n 2401069 -l app=rednet | grep -A 20 "Events:"
-                            exit 1
-                        }
-                        
-                        echo "SUCCESS!"
+                        echo "Deployment successful!"
                         kubectl get pods -n 2401069 -l app=rednet
                     """
                 }
