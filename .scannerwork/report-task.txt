@@ -1,0 +1,6 @@
+projectKey=2401069_rednet
+serverUrl=http://sonarqube.imcc.com
+serverVersion=25.1.0.102122
+dashboardUrl=http://sonarqube.imcc.com/dashboard?id=2401069_rednet
+ceTaskId=b81f34c2-be5e-467b-9faf-2cc3187095c7
+ceTaskUrl=http://sonarqube.imcc.com/api/ce/task?id=b81f34c2-be5e-467b-9faf-2cc3187095c7

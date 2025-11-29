@@ -1,70 +1,166 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
 
-environment {
-    SSH_CREDENTIALS = 'aws-ssh-key'         // use the credential id you added in Jenkins
-    DEPLOY_USER = "ubuntu"
-    DEPLOY_HOST = "100.27.254.8" // replace with actual public IP (or use Jenkins credential/param)
-    APP_DIR = "/home/ubuntu/rednet-app"
-    CONTAINER_NAME = "rednet_nextjs"
-    ENV_PATH = "/home/ubuntu/rednet-app/.env.production"
-}
+  - name: node
+    image: node:18
+    command: ["cat"]
+    tty: true
 
+  - name: sonar-scanner
+    image: sonarsource/sonar-scanner-cli
+    command: ["cat"]
+    tty: true
 
-    stages {
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command: ["cat"]
+    tty: true
+    securityContext:
+      runAsUser: 0
+      readOnlyRootFilesystem: false
+    env:
+      - name: KUBECONFIG
+        value: /kube/config
+    volumeMounts:
+      - name: kubeconfig-secret
+        mountPath: /kube/config
+        subPath: kubeconfig
 
-        stage('Checkout Code') {
-            steps {
-                checkout scm
-            }
-        }
+  - name: dind
+    image: docker:24.0-dind
+    securityContext:
+      privileged: true
+    args:
+      - "--storage-driver=overlay2"
+      - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+    env:
+      - name: DOCKER_TLS_CERTDIR
+        value: ""
+    volumeMounts:
+      - name: docker-storage
+        mountPath: /var/lib/docker
 
-        stage('Send Code to EC2') {
-            steps {
-                sshagent([SSH_CREDENTIALS]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST '
-                            mkdir -p $APP_DIR
-                        '
-                        rsync -avz --exclude=node_modules --exclude=.next --delete ./ $DEPLOY_USER@$DEPLOY_HOST:$APP_DIR
-                    """
-                }
-            }
-        }
+  volumes:
+    - name: kubeconfig-secret
+      secret:
+        secretName: kubeconfig-secret
 
-        stage('Build Docker Image & Deploy on EC2') {
-            steps {
-                sshagent([SSH_CREDENTIALS]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST '
-                            cd $APP_DIR
-
-                            echo "Building Docker image on EC2..."
-                            docker build -t $CONTAINER_NAME .
-
-                            echo "Stopping old container..."
-                            docker stop $CONTAINER_NAME || true
-                            docker rm $CONTAINER_NAME || true
-
-                            echo "Starting new container..."
-                            docker run -d \
-                                --name $CONTAINER_NAME \
-                                --env-file $ENV_PATH \
-                                -p 3000:3000 \
-                                $CONTAINER_NAME
-                        '
-                    """
-                }
-            }
+    - name: docker-storage
+      emptyDir: {}
+'''
         }
     }
 
-    post {
-        success {
-            echo "🚀 Deployment complete!"
+    environment {
+        REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+        IMAGE    = "2401069/rednet"
+        VERSION  = "v1"
+    }
+
+    stages {
+
+        /* ------------------------- FRONTEND BUILD ------------------------- */
+        stage('Install + Build Frontend') {
+            steps {
+                container('node') {
+                    sh '''
+                        echo "Installing pnpm..."
+                        npm install -g pnpm
+
+                        echo "Installing dependencies..."
+                        pnpm install --frozen-lockfile
+
+                        echo "Building Next.js project..."
+                        npm run build
+                    '''
+                }
+            }
         }
-        failure {
-            echo "❌ Deployment failed!"
+
+        /* ------------------------- DOCKER BUILD --------------------------- */
+        stage('Build Docker Image') {
+            steps {
+                container('dind') {
+                    sh '''
+                        echo "Waiting for Docker daemon..."
+                        sleep 10
+
+                        echo "Docker version:"
+                        docker version
+
+                        echo "Building Docker image..."
+                        docker build -t $IMAGE:$VERSION .
+                    '''
+                }
+            }
+        }
+
+        /* ------------------------- SONARQUBE ------------------------------ */
+        stage('SonarQube Analysis') {
+            steps {
+                container('sonar-scanner') {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=2401069_rednet \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
+                          -Dsonar.login=sqp_23bc67fb7f5ada4327208dd40e2f16bea7840893
+                    '''
+                }
+            }
+        }
+
+        /* ---------------------- DOCKER LOGIN ------------------------------ */
+        stage('Login to Nexus Registry') {
+            steps {
+                container('dind') {
+                    sh '''
+                        echo "Logging into Nexus..."
+                        docker login $REGISTRY -u admin -p Changeme@2025
+                    '''
+                }
+            }
+        }
+
+        /* ---------------------- PUSH IMAGE ------------------------------- */
+        stage('Push to Nexus') {
+            steps {
+                container('dind') {
+                    sh '''
+                        echo "Tagging image..."
+                        docker tag $IMAGE:$VERSION $REGISTRY/$IMAGE:$VERSION
+
+                        echo "Pushing image..."
+                        docker push $REGISTRY/$IMAGE:$VERSION || {
+                            echo "Retrying push..."
+                            sleep 5
+                            docker push $REGISTRY/$IMAGE:$VERSION
+                        }
+                    '''
+                }
+            }
+        }
+
+        /* ---------------------- DEPLOY TO K8S ----------------------------- */
+        stage('Deploy to Kubernetes') {
+            steps {
+                container('kubectl') {
+                    sh """
+                        echo "Deploying RedNet to Kubernetes namespace 2401069..."
+
+                        kubectl apply -f k8s/deployment.yaml -n 2401069
+
+                        echo "Checking rollout..."
+                        kubectl rollout status deployment/rednet-deployment -n 2401069
+                    """
+                }
+            }
         }
     }
 }
