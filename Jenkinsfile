@@ -1,172 +1,104 @@
-// pipeline {
-//     agent {
-//         kubernetes {
-//             yaml '''
-// apiVersion: v1
-// kind: Pod
+
+// apiVersion: apps/v1
+// kind: Deployment
+// metadata:
+//   name: rednet-deployment
+//   namespace: "2401069"
 // spec:
-//   containers:
-
-//   - name: node
-//     image: node:18
-//     command: ["cat"]
-//     tty: true
-
-//   - name: sonar-scanner
-//     image: sonarsource/sonar-scanner-cli
-//     command: ["cat"]
-//     tty: true
-
-//   - name: kubectl
-//     image: bitnami/kubectl:latest
-//     command: ["cat"]
-//     tty: true
-//     securityContext:
-//       runAsUser: 0
-//       readOnlyRootFilesystem: false
-//     env:
-//       - name: KUBECONFIG
-//         value: /kube/config
-//     volumeMounts:
-//       - name: kubeconfig-secret
-//         mountPath: /kube/config
-//         subPath: kubeconfig
-
-//   - name: dind
-//     image: docker:24.0-dind
-//     securityContext:
-//       privileged: true
-//     args:
-//       - "--storage-driver=overlay2"
-//       - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
-//     env:
-//       - name: DOCKER_TLS_CERTDIR
-//         value: ""
-//     volumeMounts:
-//       - name: docker-storage
-//         mountPath: /var/lib/docker
-
-//   volumes:
-//     - name: kubeconfig-secret
-//       secret:
-//         secretName: kubeconfig-secret
-
-//     - name: docker-storage
-//       emptyDir: {}
-// '''
-//         }
-//     }
-
-//     environment {
-//         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
-//         IMAGE    = "2401069/rednet"
-//         VERSION  = "v${BUILD_NUMBER}"
-//     }
-
-//     stages {
-
-//         /* ------------------------- FRONTEND BUILD ------------------------- */
-//         stage('Install + Build Frontend') {
-//             steps {
-//                 container('node') {
-//                     sh '''
-//                         echo "Installing pnpm..."
-//                         npm install -g pnpm
-
-//                         echo "Installing dependencies..."
-//                         pnpm install --frozen-lockfile
-
-//                         echo "Building Next.js project..."
-//                         npm run build
-//                     '''
-//                 }
-//             }
-//         }
-
-//         /* ------------------------- DOCKER BUILD --------------------------- */
-//         stage('Build Docker Image') {
-//             steps {
-//                 container('dind') {
-//                     sh '''
-//                         echo "Waiting for Docker daemon..."
-//                         sleep 10
-
-//                         echo "Docker version:"
-//                         docker version
-
-//                         echo "Building Docker image..."
-//                         docker build -t $IMAGE:$VERSION .
-//                     '''
-//                 }
-//             }
-//         }
-
-//         /* ------------------------- SONARQUBE ------------------------------ */
-//         stage('SonarQube Analysis') {
-//             steps {
-//                 container('sonar-scanner') {
-//                     sh '''
-//                         sonar-scanner \
-//                           -Dsonar.projectKey=2401069_rednet \
-//                           -Dsonar.sources=. \
-//                           -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
-//                           -Dsonar.login=sqp_23bc67fb7f5ada4327208dd40e2f16bea7840893
-//                     '''
-//                 }
-//             }
-//         }
-
-//         /* ---------------------- DOCKER LOGIN ------------------------------ */
-//         stage('Login to Nexus Registry') {
-//             steps {
-//                 container('dind') {
-//                     sh '''
-//                         echo "Logging into Nexus..."
-//                         docker login $REGISTRY -u admin -p Changeme@2025
-//                     '''
-//                 }
-//             }
-//         }
-
-//         /* ---------------------- PUSH IMAGE ------------------------------- */
-//         stage('Push to Nexus') {
-//             steps {
-//                 container('dind') {
-//                     sh '''
-//                         echo "Tagging image..."
-//                         docker tag $IMAGE:$VERSION $REGISTRY/$IMAGE:$VERSION
-
-//                         echo "Pushing image..."
-//                         docker push $REGISTRY/$IMAGE:$VERSION || {
-//                             echo "Retrying push..."
-//                             sleep 5
-//                             docker push $REGISTRY/$IMAGE:$VERSION
-//                         }
-//                     '''
-//                 }
-//             }
-//         }
-
-//         /* ---------------------- DEPLOY TO K8S ----------------------------- */
-//         stage('Deploy to Kubernetes') {
-//             steps {
-//                 container('kubectl') {
-//                     sh """
-//                         echo "Deploying RedNet to Kubernetes namespace 2401069..."
-                        
-//                         # 🔥 Replace placeholder IMAGE_TAG inside deployment.yaml
-//                         sed -i "s/IMAGE_TAG/$VERSION/g" k8s/deployment.yaml
-
-//                         kubectl apply -f k8s/deployment.yaml -n 2401069
-
-//                         echo "Checking rollout..."
-//                         kubectl rollout status deployment/rednet-deployment -n 2401069
-//                     """
-//                 }
-//             }
-//         }
-//     }
-// }
+//   replicas: 1
+//   strategy:
+//     type: RollingUpdate
+//     rollingUpdate:
+//       maxUnavailable: 1
+//       maxSurge: 1
+//   selector:
+//     matchLabels:
+//       app: rednet
+//   template:
+//     metadata:
+//       labels:
+//         app: rednet
+//     spec:
+//       imagePullSecrets:
+//         - name: nexus-secret
+//       terminationGracePeriodSeconds: 30
+//       containers:
+//         - name: rednet
+//           image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:${IMAGE_TAG}
+//           imagePullPolicy: Always
+//           ports:
+//             - containerPort: 3000
+//           env:
+//             - name: NODE_ENV
+//               value: "production"
+//             - name: JWT_SECRET
+//               value: "XmpxMBqyicVFC+y74+VEw+d1SUz3gSxqBWpQ33DNGFs8JOIF99v/Qah3Rr18rVaYUjHu+g3Y5y4WzjzUdkZQvQ=="
+//             - name: NEXT_PUBLIC_SUPABASE_URL
+//               value: "https://nypverxdujpsdnyzktdm.supabase.co"
+//             - name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+//               value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55cHZlcnhkdWpwc2RueXprdGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2MjYyNjgsImV4cCI6MjA2NTIwMjI2OH0.0AlveeXieCvf5umY5JSvErhu96pbVPQwIKXTkIpKB-Q"
+//           resources:
+//             requests:
+//               cpu: "100m"
+//               memory: "256Mi"
+//             limits:
+//               cpu: "1000m"
+//               memory: "1Gi"
+//           readinessProbe:
+//             httpGet:
+//               path: /
+//               port: 3000
+//             initialDelaySeconds: 30
+//             periodSeconds: 10
+//             timeoutSeconds: 5
+//             failureThreshold: 3
+//           livenessProbe:
+//             httpGet:
+//               path: /
+//               port: 3000
+//             initialDelaySeconds: 60
+//             periodSeconds: 20
+//             timeoutSeconds: 5
+//             failureThreshold: 3
+//           lifecycle:
+//             preStop:
+//               exec:
+//                 command: ["/bin/sh", "-c", "sleep 10"]
+// ---
+// apiVersion: v1
+// kind: Service
+// metadata:
+//   name: rednet-service
+//   namespace: "2401069"
+// spec:
+//   type: ClusterIP
+//   selector:
+//     app: rednet
+//   ports:
+//     - protocol: TCP
+//       port: 80
+//       targetPort: 3000
+// ---
+// apiVersion: networking.k8s.io/v1
+// kind: Ingress
+// metadata:
+//   name: rednet-ingress
+//   namespace: "2401069"
+//   annotations:
+//     nginx.ingress.kubernetes.io/rewrite-target: /
+// spec:
+//   ingressClassName: nginx
+//   rules:
+//     - host: 2401069.imcc.com
+//       http:
+//         paths:
+//           - path: /
+//             pathType: Prefix
+//             backend:
+//               service:
+//                 name: rednet-service
+//                 port:
+//                   number: 80
 
 
 pipeline {
@@ -289,13 +221,24 @@ spec:
             steps {
                 container('kubectl') {
                     sh """
-                        echo "Deploying RedNet to Kubernetes namespace 2401069..."
+                        echo "Killing old pods if stuck..."
+                        kubectl delete pod -l app=rednet -n 2401069 --grace-period=0 --force || true
                         
+                        echo "Deploying RedNet to Kubernetes namespace 2401069..."
                         export IMAGE_TAG=$VERSION
                         envsubst < k8s/deployment.yaml | kubectl apply -f - -n 2401069
 
                         echo "Waiting for deployment..."
-                        kubectl rollout status deployment/rednet-deployment -n 2401069 --timeout=5m
+                        kubectl rollout status deployment/rednet-deployment -n 2401069 --timeout=10m || {
+                            echo "Deployment failed, checking pod status..."
+                            kubectl get pods -n 2401069 -l app=rednet
+                            kubectl describe pods -n 2401069 -l app=rednet
+                            kubectl logs -n 2401069 -l app=rednet --tail=50 || true
+                            exit 1
+                        }
+                        
+                        echo "Deployment successful!"
+                        kubectl get pods -n 2401069 -l app=rednet
                     """
                 }
             }
