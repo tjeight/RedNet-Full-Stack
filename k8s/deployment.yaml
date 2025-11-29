@@ -144,7 +144,7 @@ spec:
         - name: nexus-secret
       containers:
         - name: rednet
-          image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:v${BUILD_NUMBER}
+          image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:IMAGE_TAG
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
