@@ -154,7 +154,9 @@ spec:
                     sh """
                         echo "Deploying RedNet to Kubernetes namespace 2401069..."
                         
-                        "sed -i "s/IMAGE_TAG/v${BUILD_NUMBER}/g" k8s/deployment.yaml"
+                        # 🔥 Replace placeholder IMAGE_TAG inside deployment.yaml
+                        sed -i "s/IMAGE_TAG/$VERSION/g" k8s/deployment.yaml
+
                         kubectl apply -f k8s/deployment.yaml -n 2401069
 
                         echo "Checking rollout..."
