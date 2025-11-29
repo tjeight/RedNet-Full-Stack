@@ -1,20 +1,45 @@
-# Dependencies
-FROM node:18-alpine AS deps
+# # Dependencies
+# FROM node:18-alpine AS deps
+# WORKDIR /app
+# COPY package.json pnpm-lock.yaml ./
+# RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
+
+# # Builder
+# FROM node:18-alpine AS builder
+# WORKDIR /app
+# COPY --from=deps /app/node_modules ./node_modules
+# COPY . .
+# RUN npm install -g pnpm && pnpm build
+
+# # Runner – super small (~80 MB) and 100% working
+# FROM node:18-alpine AS runner
+# WORKDIR /app
+
+# ENV NODE_ENV=production
+# ENV NEXT_TELEMETRY_DISABLED=1
+
+# COPY --from=builder /app/public ./public
+# COPY --from=builder /app/.next/standalone ./
+# COPY --from=builder /app/.next/static ./.next/static
+
+# EXPOSE 3000
+
+# CMD ["node", "server.js"]
+
+
+
+FROM node:18-alpine AS base
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
-# Builder
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+FROM base AS builder
 COPY . .
-RUN npm install -g pnpm && pnpm build
+RUN pnpm build
 
-# Runner – super small (~80 MB) and 100% working
+# Production runner (tiny & bulletproof)
 FROM node:18-alpine AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -23,5 +48,4 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
-
 CMD ["node", "server.js"]
