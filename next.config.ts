@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
     optimizePackageImports: ["@supabase/supabase-js", "@supabase/realtime-js"],
   },
+  output: "standalone",
   /* config options here */
 };
 
