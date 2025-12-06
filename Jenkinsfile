@@ -891,7 +891,7 @@ spec:
       tty: true
 
     - name: kubectl
-      image: lachlanevenson/k8s-kubectl:v1.29.0
+      image: registry.k8s.io/kubectl:v1.28.0
       command: ["cat"]
       tty: true
       env:
