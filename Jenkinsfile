@@ -794,18 +794,18 @@ spec:
 
         /* ------------------------- SONARQUBE ------------------------------ */
         stage('SonarQube Analysis') {
-            steps {
-                container('sonar-scanner') {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=2401069_rednet \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
-                          -Dsonar.login=sqp_23bc67fb7f5ada4327208dd40e2f16bea7840893
-                    '''
-                }
-            }
+    steps {
+        container('sonar-scanner') {
+            sh '''
+                sonar-scanner \
+                  -Dsonar.projectKey=2401069_rednet \
+                  -Dsonar.sources=. \
+                  -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
+                  -Dsonar.token=sqp_af32fdccc94be1144e1dab74ecf97fce15863cb9
+            '''
         }
+    }
+}
 
         /* ---------------------- DOCKER LOGIN & PUSH ----------------------- */
         stage('Login to Docker Registry') {
