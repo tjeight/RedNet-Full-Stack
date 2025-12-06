@@ -867,51 +867,45 @@
 pipeline {
     agent {
         kubernetes {
-            yaml '''
+    yaml '''
 apiVersion: v1
 kind: Pod
 spec:
   containers:
-    - name: dind
-      image: docker:dind
-      securityContext:
-        privileged: true
-      env:
-        - name: DOCKER_TLS_CERTDIR
-          value: ""
-      args:
-        - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
-      volumeMounts:
-        - name: docker-storage
-          mountPath: /var/lib/docker
+  - name: dind
+    image: docker:dind
+    securityContext:
+      privileged: true
+    env:
+    - name: DOCKER_TLS_CERTDIR
+      value: ""
+    args:
+    - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
 
-    - name: sonar
-      image: sonarsource/sonar-scanner-cli
-      command: ["cat"]
-      tty: true
+  - name: sonar
+    image: sonarsource/sonar-scanner-cli
+    command: ["cat"]
+    tty: true
 
-    - name: kubectl
-      image: registry.k8s.io/kubectl:v1.28.0
-      command: ["cat"]
-      tty: true
-      env:
-        - name: KUBECONFIG
-          value: /kube/config
-      volumeMounts:
-        - name: kubeconfig-secret
-          mountPath: /kube/config
-          subPath: kubeconfig
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command: ["cat"]
+    tty: true
+    env:
+    - name: KUBECONFIG
+      value: /kube/config
+    volumeMounts:
+    - name: kubeconfig-secret
+      mountPath: /kube/config
+      subPath: kubeconfig
 
   volumes:
-    - name: docker-storage
-      emptyDir: {}
-    - name: kubeconfig-secret
-      secret:
-        secretName: kubeconfig-secret
+  - name: kubeconfig-secret
+    secret:
+      secretName: kubeconfig-secret
 '''
-        }
-    }
-
+}
+}
     environment {
         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
         IMAGE    = "2401069/rednet"
