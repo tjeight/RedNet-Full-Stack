@@ -874,6 +874,7 @@ spec:
   containers:
   - name: dind
     image: docker:dind
+    
     securityContext:
       privileged: true
     env:
@@ -889,7 +890,7 @@ spec:
 
   - name: kubectl
     image: bitnami/kubectl:latest
-    command: ["cat"]
+    command: ["sleep", "3600"]
     tty: true
     env:
     - name: KUBECONFIG
