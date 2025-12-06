@@ -891,7 +891,7 @@ spec:
       tty: true
 
     - name: kubectl
-      image: bitnami/kubectl:1.30.2-debian-12-r0
+      image: lachlanevenson/k8s-kubectl:v1.29.0
       command: ["cat"]
       tty: true
       env:
