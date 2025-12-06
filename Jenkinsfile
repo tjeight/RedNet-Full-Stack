@@ -862,7 +862,6 @@
 //         }
 //     }
 // }
-
 pipeline {
     agent {
         kubernetes {
@@ -876,8 +875,8 @@ spec:
     image: jenkins/inbound-agent:alpine-jdk17
     resources:
       limits:
-        memory: "1Gi"
-        cpu: "1"
+        memory: "1024Mi"
+        cpu: "1000m"
       requests:
         memory: "512Mi"
         cpu: "500m"
@@ -894,19 +893,22 @@ spec:
     resources:
       limits:
         memory: "2Gi"
+        cpu: "1500m"
 
   - name: sonar
     image: sonarsource/sonar-scanner-cli:latest
     command: ["sleep"]
-    args: ["3600"]
+    args: ["999999"]
     resources:
       limits:
-        memory: "1Gi"
+        memory: "1536Mi"      # ← THIS IS THE FIX (1.5 GiB instead of 1 GiB)
+      requests:
+        memory: "1024Mi"
 
   - name: kubectl
     image: bitnami/kubectl:latest
     command: ["sleep"]
-    args: ["999999"]                     # ← THIS KEEPS IT ALIVE FOREVER
+    args: ["999999"]
     resources:
       limits:
         memory: "256Mi"
@@ -914,7 +916,7 @@ spec:
         memory: "64Mi"
     env:
       - name: KUBECONFIG
-        value: /kube/config
+        value: "/kube/config"
     volumeMounts:
       - name: kubeconfig
         mountPath: /kube/config
@@ -927,7 +929,7 @@ spec:
 '''
         }
     }
-    environment {
+        environment {
         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
         IMAGE    = "2401069/rednet"
         VERSION  = "v${BUILD_NUMBER}"
