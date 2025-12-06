@@ -863,50 +863,70 @@
 //     }
 // }
 
-
 pipeline {
     agent {
         kubernetes {
-    yaml '''
+            defaultContainer 'jnlp'
+            yaml '''
 apiVersion: v1
 kind: Pod
 spec:
   containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:alpine-jdk17
+    resources:
+      limits:
+        memory: "1Gi"
+        cpu: "1"
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+
   - name: dind
     image: docker:dind
-    
     securityContext:
       privileged: true
     env:
-    - name: DOCKER_TLS_CERTDIR
-      value: ""
+      - name: DOCKER_TLS_CERTDIR
+        value: ""
     args:
-    - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+      - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+    resources:
+      limits:
+        memory: "2Gi"
 
   - name: sonar
-    image: sonarsource/sonar-scanner-cli
-    command: ["cat"]
-    tty: true
+    image: sonarsource/sonar-scanner-cli:latest
+    command: ["sleep"]
+    args: ["3600"]
+    resources:
+      limits:
+        memory: "1Gi"
 
   - name: kubectl
     image: bitnami/kubectl:latest
-    command: ["sleep", "3600"]
-    tty: true
+    command: ["sleep"]
+    args: ["999999"]                     # ← THIS KEEPS IT ALIVE FOREVER
+    resources:
+      limits:
+        memory: "256Mi"
+      requests:
+        memory: "64Mi"
     env:
-    - name: KUBECONFIG
-      value: /kube/config
+      - name: KUBECONFIG
+        value: /kube/config
     volumeMounts:
-    - name: kubeconfig-secret
-      mountPath: /kube/config
-      subPath: kubeconfig
+      - name: kubeconfig
+        mountPath: /kube/config
+        subPath: kubeconfig
 
   volumes:
-  - name: kubeconfig-secret
+  - name: kubeconfig
     secret:
       secretName: kubeconfig-secret
 '''
-}
-}
+        }
+    }
     environment {
         REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
         IMAGE    = "2401069/rednet"
