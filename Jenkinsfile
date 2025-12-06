@@ -891,7 +891,7 @@ spec:
       tty: true
 
     - name: kubectl
-      image: image: bitnami/kubectl:latest-debian
+      image: bitnami/kubectl:latest-debian
       command: ["cat"]
       tty: true
       env:
