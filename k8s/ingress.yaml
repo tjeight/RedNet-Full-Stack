@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rednet-ingress
+spec:
+  rules:
+    - host: rednet.college.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rednet-service
+                port:
+                  number: 80
