@@ -707,3 +707,17 @@ spec:
           image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:IMAGE_TAG
           ports:
             - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_SUPABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secrets
+                  key: NEXT_PUBLIC_SUPABASE_URL
+
+            - name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secrets
+                  key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+
