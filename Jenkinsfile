@@ -1273,6 +1273,10 @@ spec:
   containers:
   - name: jnlp
     image: jenkins/inbound-agent:alpine-jdk17
+    workingDir: /home/jenkins/agent
+    volumeMounts:
+    - name: workspace
+      mountPath: /home/jenkins/agent
 
   - name: dind
     image: docker:dind
@@ -1283,25 +1287,46 @@ spec:
         value: ""
     args:
       - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+    workingDir: /home/jenkins/agent
+    volumeMounts:
+    - name: workspace
+      mountPath: /home/jenkins/agent
 
   - name: kubectl
     image: bitnami/kubectl:latest
-    command: ["cat"]
+    command:
+      - /bin/sh
+    args:
+      - -c
+      - sleep 999999
     tty: true
     env:
       - name: KUBECONFIG
         value: /kube/config
+    workingDir: /home/jenkins/agent
     volumeMounts:
-      - name: kubeconfig-secret
-        mountPath: /kube/config
-        subPath: kubeconfig
+    - name: workspace
+      mountPath: /home/jenkins/agent
+    - name: kubeconfig-secret
+      mountPath: /kube/config
+      subPath: kubeconfig
 
   - name: sonar
     image: sonarsource/sonar-scanner-cli:latest
-    command: ["cat"]
+    command:
+      - /bin/sh
+    args:
+      - -c
+      - sleep 999999
     tty: true
+    workingDir: /home/jenkins/agent
+    volumeMounts:
+    - name: workspace
+      mountPath: /home/jenkins/agent
 
   volumes:
+  - name: workspace
+    emptyDir: {}
   - name: kubeconfig-secret
     secret:
       secretName: kubeconfig-secret
@@ -1327,11 +1352,7 @@ spec:
       steps {
         container("sonar") {
           sh '''
-            sonar-scanner \
-              -Dsonar.projectKey=2401069_rednet \
-              -Dsonar.sources=. \
-              -Dsonar.host.url=http://my-sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
-              -Dsonar.login=sqp_23bc67fb7f5ada4327208dd40e2f16bea7840893
+            sonar-scanner
           '''
         }
       }
@@ -1352,38 +1373,18 @@ spec:
     stage("Push Image to Nexus") {
       steps {
         container("dind") {
-          withCredentials([
-            usernamePassword(
-              credentialsId: 'nexus-docker-creds',
-              usernameVariable: 'NEXUS_USER',
-              passwordVariable: 'NEXUS_PASS'
-            )
-          ]) {
-            sh '''
-              docker login $REGISTRY -u $NEXUS_USER -p $NEXUS_PASS
-              docker tag $IMAGE:$TAG $REGISTRY/$IMAGE:$TAG
-              docker push $REGISTRY/$IMAGE:$TAG
-            '''
-          }
-        }
-      }
-    }
+          sh '''
+            echo "Logging into Nexus..."
+            docker login nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085 \
+              -u admin \
+              -p Changeme@2025
 
-    stage("Inject Supabase Secrets") {
-      steps {
-        container("kubectl") {
-          withCredentials([
-            string(credentialsId: 'NEXT_PUBLIC_SUPABASE_URL', variable: 'NEXT_PUBLIC_SUPABASE_URL'),
-            string(credentialsId: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', variable: 'NEXT_PUBLIC_SUPABASE_ANON_KEY')
-          ]) {
-            sh '''
-              kubectl create secret generic supabase-secrets \
-                --from-literal=NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
-                --from-literal=NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
-                -n 2401069 \
-                --dry-run=client -o yaml | kubectl apply -f -
-            '''
-          }
+            echo "Tagging image..."
+            docker tag $IMAGE:$TAG $REGISTRY/$IMAGE:$TAG
+
+            echo "Pushing image..."
+            docker push $REGISTRY/$IMAGE:$TAG
+          '''
         }
       }
     }
@@ -1392,23 +1393,12 @@ spec:
       steps {
         container("kubectl") {
           sh '''
-            echo "Force deleting old pods..."
-            kubectl delete pod -l app=rednet -n 2401069 --force --grace-period=0 || true
-            sleep 5
-            
-            echo "Applying deployment..."
             export IMAGE_TAG=$TAG
-            envsubst < k8s/deployment.yaml | kubectl apply -f -
-            
-            echo "Waiting for rollout..."
-            kubectl rollout status deployment/rednet-deployment -n 2401069 --timeout=5m
-            
-            echo "Deployment successful!"
-            kubectl get pods -n 2401069 -l app=rednet
+            envsubst < k8s/deployment.yaml | kubectl apply -f - -n 2401069
+            kubectl rollout status deployment/rednet-deployment -n 2401069
           '''
         }
       }
     }
-
   }
 }
