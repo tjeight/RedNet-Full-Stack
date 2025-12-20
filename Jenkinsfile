@@ -1590,7 +1590,7 @@ spec:
     
     // Docker Hub credentials - REPLACE THESE
     DOCKERHUB_USER = "tjboss123"
-    DOCKERHUB_PASS = "Tejas@123456"
+    DOCKERHUB_PASS = "Demo@123456"
   }
 
   stages {
