@@ -1091,24 +1091,23 @@ spec:
     }
 
     stage("Push Image to Nexus") {
-      steps {
-        container("dind") {
-          withCredentials([
-            usernamePassword(
-              credentialsId: 'nexus-docker-creds',
-              usernameVariable: 'NEXUS_USER',
-              passwordVariable: 'NEXUS_PASS'
-            )
-          ]) {
-            sh '''
-              docker login $REGISTRY -u $NEXUS_USER -p $NEXUS_PASS
-              docker tag $IMAGE:$TAG $REGISTRY/$IMAGE:$TAG
-              docker push $REGISTRY/$IMAGE:$TAG
-            '''
-          }
-        }
-      }
+  steps {
+    container("dind") {
+      sh '''
+        echo "Logging into Nexus..."
+        docker login nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085 \
+          -u admin \
+          -p Changeme@2025
+
+        echo "Tagging image..."
+        docker tag $IMAGE:$TAG $REGISTRY/$IMAGE:$TAG
+
+        echo "Pushing image..."
+        docker push $REGISTRY/$IMAGE:$TAG
+      '''
     }
+  }
+}
 stage("Inject Supabase Secrets") {
   steps {
     container("kubectl") {
