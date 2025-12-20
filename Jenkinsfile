@@ -1295,11 +1295,10 @@ spec:
   - name: kubectl
     image: bitnami/kubectl:latest
     command:
-      - /bin/sh
-    args:
-      - -c
-      - sleep 999999
+      - cat
     tty: true
+    securityContext:
+      runAsUser: 0
     env:
       - name: KUBECONFIG
         value: /kube/config
@@ -1314,10 +1313,7 @@ spec:
   - name: sonar
     image: sonarsource/sonar-scanner-cli:latest
     command:
-      - /bin/sh
-    args:
-      - -c
-      - sleep 999999
+      - cat
     tty: true
     workingDir: /home/jenkins/agent
     volumeMounts:
@@ -1341,7 +1337,6 @@ spec:
   }
 
   stages {
-
     stage("Checkout") {
       steps {
         checkout scm
@@ -1351,9 +1346,7 @@ spec:
     stage("SonarQube Scan") {
       steps {
         container("sonar") {
-          sh '''
-            sonar-scanner
-          '''
+          sh 'sonar-scanner'
         }
       }
     }
@@ -1362,7 +1355,6 @@ spec:
       steps {
         container("dind") {
           sh '''
-            echo "Waiting for Docker daemon..."
             sleep 10
             docker build -t $IMAGE:$TAG .
           '''
@@ -1374,15 +1366,8 @@ spec:
       steps {
         container("dind") {
           sh '''
-            echo "Logging into Nexus..."
-            docker login nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085 \
-              -u admin \
-              -p Changeme@2025
-
-            echo "Tagging image..."
+            docker login $REGISTRY -u admin -p Changeme@2025
             docker tag $IMAGE:$TAG $REGISTRY/$IMAGE:$TAG
-
-            echo "Pushing image..."
             docker push $REGISTRY/$IMAGE:$TAG
           '''
         }
