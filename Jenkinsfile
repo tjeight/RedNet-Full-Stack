@@ -1027,7 +1027,11 @@ spec:
 
   - name: kubectl
     image: bitnami/kubectl:latest
-    command: ["cat"]
+    command:
+      - /bin/sh
+    args:
+      - -c
+      - cat
     tty: true
     env:
       - name: KUBECONFIG
@@ -1037,10 +1041,16 @@ spec:
         mountPath: /kube/config
         subPath: kubeconfig
 
+
   - name: sonar
     image: sonarsource/sonar-scanner-cli:latest
-    command: ["cat"]
+    command:
+      - /bin/sh
+    args:
+      - -c
+      - cat
     tty: true
+
 
   volumes:
   - name: kubeconfig-secret
