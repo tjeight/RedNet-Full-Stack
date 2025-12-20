@@ -1262,6 +1262,133 @@
 
 
 
+// pipeline {
+//   agent {
+//     kubernetes {
+//       defaultContainer 'jnlp'
+//       yaml '''
+// apiVersion: v1
+// kind: Pod
+// spec:
+//   containers:
+//   - name: jnlp
+//     image: jenkins/inbound-agent:alpine-jdk17
+//     workingDir: /home/jenkins/agent
+//     volumeMounts:
+//     - name: workspace
+//       mountPath: /home/jenkins/agent
+
+//   - name: dind
+//     image: docker:dind
+//     securityContext:
+//       privileged: true
+//     env:
+//       - name: DOCKER_TLS_CERTDIR
+//         value: ""
+//     args:
+//       - "--insecure-registry=nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+//     workingDir: /home/jenkins/agent
+//     volumeMounts:
+//     - name: workspace
+//       mountPath: /home/jenkins/agent
+
+//   - name: kubectl
+//     image: bitnami/kubectl:latest
+//     command:
+//       - cat
+//     tty: true
+//     securityContext:
+//       runAsUser: 0
+//     env:
+//       - name: KUBECONFIG
+//         value: /kube/config
+//     workingDir: /home/jenkins/agent
+//     volumeMounts:
+//     - name: workspace
+//       mountPath: /home/jenkins/agent
+//     - name: kubeconfig-secret
+//       mountPath: /kube/config
+//       subPath: kubeconfig
+
+//   - name: sonar
+//     image: sonarsource/sonar-scanner-cli:latest
+//     command:
+//       - cat
+//     tty: true
+//     workingDir: /home/jenkins/agent
+//     volumeMounts:
+//     - name: workspace
+//       mountPath: /home/jenkins/agent
+
+//   volumes:
+//   - name: workspace
+//     emptyDir: {}
+//   - name: kubeconfig-secret
+//     secret:
+//       secretName: kubeconfig-secret
+// '''
+//     }
+//   }
+
+//   environment {
+//     REGISTRY = "nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085"
+//     IMAGE    = "2401069/rednet"
+//     TAG      = "v${BUILD_NUMBER}"
+//   }
+
+//   stages {
+//     stage("Checkout") {
+//       steps {
+//         checkout scm
+//       }
+//     }
+
+//     stage("SonarQube Scan") {
+//       steps {
+//         container("sonar") {
+//           sh 'sonar-scanner'
+//         }
+//       }
+//     }
+
+//     stage("Build Docker Image") {
+//       steps {
+//         container("dind") {
+//           sh '''
+//             sleep 10
+//             docker build -t $IMAGE:$TAG .
+//           '''
+//         }
+//       }
+//     }
+
+//     stage("Push Image to Nexus") {
+//       steps {
+//         container("dind") {
+//           sh '''
+//             docker login $REGISTRY -u admin -p Changeme@2025
+//             docker tag $IMAGE:$TAG $REGISTRY/$IMAGE:$TAG
+//             docker push $REGISTRY/$IMAGE:$TAG
+//           '''
+//         }
+//       }
+//     }
+
+//     stage("Deploy to Kubernetes") {
+//       steps {
+//         container("kubectl") {
+//           sh '''
+//             export IMAGE_TAG=$TAG
+//             envsubst < k8s/deployment.yaml | kubectl apply -f - -n 2401069
+//             kubectl rollout status deployment/rednet-deployment -n 2401069
+//           '''
+//         }
+//       }
+//     }
+//   }
+// }
+
+
 pipeline {
   agent {
     kubernetes {
@@ -1377,11 +1504,10 @@ spec:
     stage("Deploy to Kubernetes") {
       steps {
         container("kubectl") {
-          sh '''
-            export IMAGE_TAG=$TAG
-            envsubst < k8s/deployment.yaml | kubectl apply -f - -n 2401069
+          sh """
+            sed 's|IMAGE_TAG|${TAG}|g' k8s/deployment.yaml | kubectl apply -f - -n 2401069
             kubectl rollout status deployment/rednet-deployment -n 2401069
-          '''
+          """
         }
       }
     }
