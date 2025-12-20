@@ -688,6 +688,39 @@
 #                 port:
 #                   number: 80
 
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: rednet-deployment
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: rednet
+#   template:
+#     metadata:
+#       labels:
+#         app: rednet
+#     spec:
+#       containers:
+#         - name: rednet
+#           image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:IMAGE_TAG
+#           ports:
+#             - containerPort: 3000
+#           env:
+#             - name: NEXT_PUBLIC_SUPABASE_URL
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: supabase-secrets
+#                   key: NEXT_PUBLIC_SUPABASE_URL
+
+#             - name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: supabase-secrets
+#                   key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -709,15 +742,10 @@ spec:
             - containerPort: 3000
           env:
             - name: NEXT_PUBLIC_SUPABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: supabase-secrets
-                  key: NEXT_PUBLIC_SUPABASE_URL
+              value: "https://nypverxdujpsdnyzktdm.supabase.co"
 
             - name: NEXT_PUBLIC_SUPABASE_ANON_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: supabase-secrets
-                  key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+              value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55cHZlcnhkdWpwc2RueXprdGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2MjYyNjgsImV4cCI6MjA2NTIwMjI2OH0.0AlveeXieCvf5umY5JSvErhu96pbVPQwIKXTkIpKB-Q"
 
-
+            - name: JWT_SECRET
+              value: "XmpxMBqyicVFC+y74+VEw+d1SUz3gSxqBWpQ33DNGFs8JOIF99v/Qah3Rr18rVaYUjHu+g3Y5y4WzjzUdkZQvQ=="

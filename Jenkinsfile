@@ -1118,23 +1118,7 @@ spec:
     }
   }
 }
-stage("Inject Supabase Secrets") {
-  steps {
-    container("kubectl") {
-      withCredentials([
-        string(credentialsId: 'NEXT_PUBLIC_SUPABASE_URL', variable: 'NEXT_PUBLIC_SUPABASE_URL'),
-        string(credentialsId: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', variable: 'NEXT_PUBLIC_SUPABASE_ANON_KEY')
-      ]) {
-        sh '''
-          kubectl create secret generic supabase-secrets \
-            --from-literal=NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
-            --from-literal=NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
-            --dry-run=client -o yaml | kubectl apply -n 2401069 -f -
-        '''
-      }
-    }
-  }
-}
+
 
     stage("Deploy to Kubernetes") {
     steps {
