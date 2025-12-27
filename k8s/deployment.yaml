@@ -737,7 +737,8 @@ spec:
     spec:
       containers:
         - name: rednet
-          image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:IMAGE_TAG
+          image: nexus.imcc.com:8085/2401069/rednet:IMAGE_TAG
+          # image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:IMAGE_TAG
           ports:
             - containerPort: 3000
           env:
