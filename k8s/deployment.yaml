@@ -725,7 +725,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rednet-deployment
-  namespace: 2401069
+  namespace: "2401069"
 spec:
   replicas: 1
   selector:
