@@ -725,6 +725,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rednet-deployment
+  namespace: 2401069
 spec:
   replicas: 1
   selector:
@@ -735,14 +736,17 @@ spec:
       labels:
         app: rednet
     spec:
+      imagePullSecrets:
+        - name: nexus-secret   # ⚠️ DO NOT CHANGE (provided by college infra)
+
       containers:
         - name: rednet
-          image: 192.168.20.250:8085/2401069/rednet:IMAGE_TAG
+          image: 127.0.0.1:30085/2401069/rednet:IMAGE_TAG
+          imagePullPolicy: IfNotPresent
 
-          # image: nexus.imcc.com:8085/2401069/rednet:IMAGE_TAG
-          # image: nexus-service-for-docker-hosted-registry.nexus.svc.cluster.local:8085/2401069/rednet:IMAGE_TAG
           ports:
             - containerPort: 3000
+
           env:
             - name: NEXT_PUBLIC_SUPABASE_URL
               value: "https://nypverxdujpsdnyzktdm.supabase.co"
